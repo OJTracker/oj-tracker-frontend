@@ -1,0 +1,17 @@
+.Paper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.FormInput {
+  width: 80%;
+  margin: 16px !important;
+}
+
+.FormButton {
+  margin: 8px !important;
+}
+
+
+

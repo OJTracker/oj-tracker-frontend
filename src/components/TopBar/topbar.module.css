@@ -1,0 +1,46 @@
+.topBar {
+  width: 100%;
+  height: 56px;
+}
+
+.linkDiv {
+  height: inherit;
+  width: 50%;
+  display: flex;
+  align-items: center;
+}
+
+.linkItem:hover  {
+  text-decoration: underline;
+}
+
+.linkItem:visited {
+  text-decoration: underline;
+  background-color: brown;
+}
+
+.userInfo {
+  display: flex;
+  align-self: center;
+  justify-content: flex-end;
+  width: 50%;
+}
+
+.buttonUserInfo {
+  margin-right: 16px;
+  background: none;
+	color: inherit;
+	border-radius: 50%;
+  border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+  height: 45px;
+  width: 45px;
+}
+
+.buttonUserInfo:hover {
+  border-color: transparent;
+  background-color: rgba(0, 0, 0, 0.1);
+}

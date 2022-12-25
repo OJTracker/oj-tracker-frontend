@@ -1,0 +1,33 @@
+.tablePaper {
+  width: 80%;
+  margin: 0px;
+}
+
+.pageContent {
+  width: 99vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0px;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.Accepted {
+  color: #33ae81;
+}
+
+.Wrong {
+  color: #dc5b57;
+}
+
+.Tryed {
+  color: #dd915f;
+}

@@ -1,0 +1,27 @@
+.Filters {
+  width: 90%;
+  height: 56px;
+  padding: 8px;
+  margin: 16px 5% 0px 5%;
+  display: flex;
+  background-color: #4c5d8a;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.filterText {
+  margin: 0 auto 0 0;
+}
+
+.filterButton {
+  justify-self: flex-end;
+}
+
+.testingFilter {
+  width: 90%;
+  height: 56px;
+  padding: 8px;
+  margin: 0px 5% 0px 5%;
+  align-items: center;
+  background-color: rgba(76, 93, 138, 0.5);
+}
