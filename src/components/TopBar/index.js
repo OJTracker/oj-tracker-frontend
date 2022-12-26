@@ -12,7 +12,7 @@ export default function TopBar(props) {
       sx={{ flexDirection: 'row' }}>
       <div className={classes.linkDiv}>
         <Link className={classes.linkItem} href="/" underline="none" color="black" style={{margin: "0px 16px"}}>User's Stats</Link>
-        <Link className={classes.linkItem} href="#" underline="none" color="black">Recommendation</Link>
+        <Link className={classes.linkItem} href="/recommendation" underline="none" color="black">Recommendation</Link>
       </div>
       <div className={classes.userInfo}>
         <button className={classes.buttonUserInfo} title="set user`s handles" onClick={props.onShowUserInfo}>

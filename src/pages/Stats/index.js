@@ -1,9 +1,9 @@
-import { Paper } from "@material-ui/core";
 import { useEffect, useState } from "react";
 import { useSelector } from 'react-redux';
 
 import { Redirect } from "react-router-dom";
 
+import { Paper } from "@material-ui/core";
 import Table from "../../components/Table/index.js";
 import Pagination from '@mui/material/Pagination';
 
@@ -34,14 +34,17 @@ const Stats = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   
-  const [onlineJudge, setOnlineJudge] = useState('Codeforces');
-  const [verdict, setVerdict] = useState('Accepted');
-
+  
   const codeforcesHandle = useSelector(state => state.user.codeforcesHandle);
   const uvaHandle = useSelector(state => state.user.uvaHandle);
   const atcoderHandle = useSelector(state => state.user.atcoderHandle);
+  
+  const [onlineJudge, setOnlineJudge] = useState(!!codeforcesHandle ? "Codeforces" : !!uvaHandle ? "Uva" : !!atcoderHandle ? "Atcoder" : "");
+  const [verdict, setVerdict] = useState('Accepted');
 
   useEffect(() => {
+
+    setOnlineJudge(!!codeforcesHandle ? "Codeforces" : !!uvaHandle ? "Uva" : !!atcoderHandle ? "Atcoder" : "");
     
     const getCodeforcesData = async () => {
       try {

@@ -68,7 +68,7 @@ const Filter = (props) => {
         <div className={`${classes.filterExpanded} ${classes.roundedJustOnBottom}`}>
           <div className={classes.filtersValue}>
             <FormControl fullWidth>
-              <InputLabel>Online Judge</InputLabel>
+              <InputLabel style={{borderBlockColor: "black"}}>Online Judge</InputLabel>
               <Select
                 value={localOnlineJudge}
                 label="Online Judge"
@@ -88,6 +88,7 @@ const Filter = (props) => {
                 label="Verdict"
                 onChange={handleVerdictChange}
                 >
+                <MenuItem value={""}>Select verdict</MenuItem>
                 <MenuItem value={"Accepted"}>Accepted</MenuItem>
                 <MenuItem value={"Wrong Answer"}>Wrong Answer</MenuItem>
                 <MenuItem value={"Time Limit"}>Time Limit</MenuItem>
