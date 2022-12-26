@@ -44,7 +44,7 @@ const Filter = (props) => {
     <>
     <div className={`${classes.filters} ${isOpenFilterPage ? classes.roundedJustOnTop : classes.rounded}`}>
       <div className={classes.filtersActives}>
-        <p className={classes.title}>Filtros Ativos: </p>
+        <p className={classes.title}>Filters: </p>
         {!!localOnlineJudge && 
         <div className={classes.filterBox}>
           <p className={classes.title}>Online Judge:</p>

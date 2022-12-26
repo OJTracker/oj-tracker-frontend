@@ -1,7 +1,7 @@
 .filters {
   width: 90%;
   height: 56px;
-  padding: 8px;
+  padding: 8px 0px;
   margin: 16px 5% 0px 5%;
   display: flex;
   background-color: #4c5d8a;
@@ -29,7 +29,7 @@
 .filterExpanded {
   width: 90%;
   height: 200px;
-  padding: 8px;
+  padding: 8px 0px;
   margin: 0px 5% 0px 5%;
   align-items: center;
   background-color: rgba(76, 93, 138, 0.1);
@@ -43,6 +43,7 @@
   display: flex;
   align-items: center;
   margin-right: auto;
+  overflow: auto;
 }
 
 .filterBox {
@@ -58,6 +59,7 @@
 
 .title {
   font-weight: bold;
+  margin-left: 6px;
   margin-right: 6px;
   color: white;
 }
