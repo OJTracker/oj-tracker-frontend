@@ -33,6 +33,9 @@ const Stats = () => {
   const [submissions, setSubmissions] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  
+  const [onlineJudge, setOnlineJudge] = useState('Codeforces');
+  const [verdict, setVerdict] = useState('Accepted');
 
   const codeforcesHandle = useSelector(state => state.user.codeforcesHandle);
   const uvaHandle = useSelector(state => state.user.uvaHandle);
@@ -43,7 +46,7 @@ const Stats = () => {
     const getCodeforcesData = async () => {
       try {
         setIsLoading(true);
-        const response = await codeforcesApi.get(`/submissions?handle=${codeforcesHandle}&page=${page}&count=${rowsPerPage}`);
+        const response = await codeforcesApi.get(`/submissions?handle=${codeforcesHandle}&page=${page}&count=${rowsPerPage}&verdict=${verdict}`);
         setSubmissions(response.data.result.map((res) => (
           {
             submission: <a href={`https://codeforces.com/contest/${res.contestId}/submission/${res.id}`} 
@@ -62,18 +65,13 @@ const Stats = () => {
       }
     }
 
-    if(!!codeforcesHandle) getCodeforcesData();
-
-  }, [page, codeforcesHandle])
-
-  useEffect(() => {
     const getUvaData = async () => {
       try { 
         setIsLoading(true);
-        const response = await uvaApi.get(`/submissions?handle=${uvaHandle}&page=${page}&count=${rowsPerPage}`);
+        const response = await uvaApi.get(`/submissions?handle=${uvaHandle}&page=${page}&count=${rowsPerPage}&verdict=${verdict}`);
         setSubmissions(response.data.result.map((res) => (
           {
-            submission: <p>res.submissionId</p>,
+            submission: <p>{res.submissionId}</p>,
             problem: <a href={`https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=8&page=show_problem&problem=${res.problemId}`} 
                           target="_blank" rel="noopener noreferrer">{res.problemId}</a>,
             verdict: <p className={classes[parse(res.verdict)]}>{res.verdict}</p>,
@@ -87,14 +85,11 @@ const Stats = () => {
         console.log("erro when try to fetch uva submissions");
       }
     }
-    if(!!uvaHandle) getUvaData();
-  }, [page, uvaHandle]);
 
-  useEffect(() => {
     const getAtcoderData = async () => {
       try {
         setIsLoading(true);
-        const response = await atcoderApi.get(`/submissions?handle=${atcoderHandle}&page=${page}&count=${rowsPerPage}`);
+        const response = await atcoderApi.get(`/submissions?handle=${atcoderHandle}&page=${page}&count=${rowsPerPage}&verdict=${verdict}`);
         setSubmissions(response.data.result.map((res) => (
           {
             submission: <a href={`https://atcoder.jp/contests/${res.contestId}/submissions/${res.submissionId}`} target="_blank" rel="noopener noreferrer">{res.submissionId}</a>,
@@ -111,8 +106,18 @@ const Stats = () => {
         console.log("erro when try to fetch atcoder submissions");
       }
     }
-    if(!!atcoderHandle) getAtcoderData();
-  }, [page, atcoderHandle])
+    
+    if(onlineJudge === "Codeforces" && !!codeforcesHandle) getCodeforcesData();
+    if(onlineJudge === "Uva" && !!uvaHandle) getUvaData();
+    if(onlineJudge === "Atcoder" && !!atcoderHandle) getAtcoderData();
+
+  }, [page, verdict, onlineJudge, codeforcesHandle, uvaHandle, atcoderHandle])
+
+  useEffect(() => {
+
+    setPage(1);
+
+  }, [codeforcesHandle, uvaHandle, atcoderHandle])
 
   const onPageChange = (event, page) => {
     setPage(page);
@@ -140,7 +145,11 @@ const Stats = () => {
             {isLoading ? <Spinner /> : 
               ( 
                 <>
-                <Filter />
+                <Filter 
+                  verdict={verdict}
+                  onlineJudge={onlineJudge}
+                  setVerdict={setVerdict} 
+                  setOnlineJudge={setOnlineJudge}/>
                 <Table 
                   columns={tableColumns}
                   rows={submissions}
