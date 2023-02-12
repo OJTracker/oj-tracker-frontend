@@ -161,6 +161,20 @@ const Stats = () => {
       }
     };
 
+    const fixOnlineJudge = async () => {
+      await setOnlineJudge(
+        !!codeforcesHandle
+          ? "Codeforces"
+          : !!uvaHandle
+          ? "Uva"
+          : !!atcoderHandle
+          ? "Atcoder"
+          : ""
+      );
+    };
+
+    if (!onlineJudge && (!!codeforcesHandle || !!atcoderHandle || !!uvaHandle))
+      fixOnlineJudge();
     if (onlineJudge === "Codeforces" && !!codeforcesHandle) getCodeforcesData();
     if (onlineJudge === "Uva" && !!uvaHandle) getUvaData();
     if (onlineJudge === "Atcoder" && !!atcoderHandle) getAtcoderData();
