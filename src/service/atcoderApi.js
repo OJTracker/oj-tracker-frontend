@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const atcoderApi = axios.create({
-  baseURL: "https://oj-tracker-atcoder-api.herokuapp.com",
+  baseURL: process.env.REACT_APP_ATCODER_API_URL,
 });
 
 export { atcoderApi };

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const codeforcesApi = axios.create({
-  baseURL: "https://oj-tracker-codeforces-api.herokuapp.com",
+  baseURL: process.env.REACT_APP_CODEFORCES_API_URL,
 });
 
 export { codeforcesApi };

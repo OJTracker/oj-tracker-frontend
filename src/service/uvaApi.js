@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const uvaApi = axios.create({
-  baseURL: "https://oj-tracker-uva-api.herokuapp.com",
+  baseURL: process.env.REACT_APP_UVA_API_URL,
 });
 
 export { uvaApi };
