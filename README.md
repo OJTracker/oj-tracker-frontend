@@ -25,6 +25,6 @@ REACT_APP_ATCODER_API_URL=URL da API para extração de dados do AtCoder.
 REACT_APP_CODEFORCES_API_URL=URL da API para extração de dados do Codeforces.
 REACT_APP_UVA_API_URL=URL da API para extração de dados do UvA Online Judge.
 ```
-- Execute o comando para criar e executar o contêiner: `docker-compose up`
+- Execute o comando para criar e executar o contêiner: `docker-compose up`. Em caso de problemas de permissão, veja as possíveis soluções neste [link](https://stackoverflow.com/questions/48957195/how-to-fix-docker-got-permission-denied-issue).
 
 - Acesse a aplicação pela URL `http://localhost:3000`.
