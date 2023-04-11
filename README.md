@@ -4,7 +4,7 @@ FrontEnd do projeto de TCC OJTracker
 
 # Pré-requisitos
 
-- Docker 23.03 ([Linux](curl -fsSL https://get.docker.com -o get-docker.sh))
+- Docker 23.03 ([Linux](https://github.com/arthurbdiniz/kind-tutorial/blob/master/0-install-tools.sh))
 - Docker Compose 1.29.2 ([Linux](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-compose-on-ubuntu-20-04))
 
 # Como executar
