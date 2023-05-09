@@ -1,26 +1,26 @@
-import { useState } from 'react';
+import { useState } from "react";
 
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
 
-import TuneIcon from '@mui/icons-material/Tune';
-import IconButton from '@mui/material/IconButton';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+import TuneIcon from "@mui/icons-material/Tune";
+import IconButton from "@mui/material/IconButton";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 
-import classes from "./filter.module.css"
-import { Button } from '@mui/material';
+import classes from "./filter.module.css";
+import { Button } from "@mui/material";
 
 const Filter = (props) => {
-
   const [isOpenFilterPage, setIsOpenFilterPage] = useState(false);
   const [localOnlineJudge, setLocalOnlineJudge] = useState(props.onlineJudge);
   const [localVerdict, setLocalVerdict] = useState(props.verdict);
 
-  const codeforcesHandle = useSelector(state => state.user.codeforcesHandle);
-  const uvaHandle = useSelector(state => state.user.uvaHandle);
-  const atcoderHandle = useSelector(state => state.user.atcoderHandle);
+  const codeforcesHandle = useSelector((state) => state.user.codeforcesHandle);
+  const uvaHandle = useSelector((state) => state.user.uvaHandle);
+  const atcoderHandle = useSelector((state) => state.user.atcoderHandle);
+  const spojHandle = useSelector((state) => state.user.spojHandle);
 
   const handleOnlineJudgeChange = (event) => {
     setLocalOnlineJudge(event.target.value);
@@ -28,55 +28,74 @@ const Filter = (props) => {
 
   const handleVerdictChange = (event) => {
     setLocalVerdict(event.target.value);
-  }
+  };
 
   const onClickFiltersHandle = () => {
     props.setOnlineJudge(localOnlineJudge);
     props.setVerdict(localVerdict);
-    setIsOpenFilterPage(prevState => !prevState);
-  }
+    setIsOpenFilterPage((prevState) => !prevState);
+  };
 
   const onClickOpenFilter = () => {
-    setIsOpenFilterPage(prevState => !prevState);
-  }
+    setIsOpenFilterPage((prevState) => !prevState);
+  };
 
   return (
     <>
-    <div className={`${classes.filters} ${isOpenFilterPage ? classes.roundedJustOnTop : classes.rounded}`}>
-      <div className={classes.filtersActives}>
-        <p className={classes.title}>Filters: </p>
-        {!!localOnlineJudge && 
-        <div className={classes.filterBox}>
-          <p className={classes.title}>Online Judge:</p>
-          <p>{localOnlineJudge}</p>
+      <div
+        className={`${classes.filters} ${
+          isOpenFilterPage ? classes.roundedJustOnTop : classes.rounded
+        }`}
+      >
+        <div className={classes.filtersActives}>
+          <p className={classes.title}>Filters: </p>
+          {!!localOnlineJudge && (
+            <div className={classes.filterBox}>
+              <p className={classes.title}>Online Judge:</p>
+              <p>{localOnlineJudge}</p>
+            </div>
+          )}
+          {!!localVerdict && (
+            <div className={classes.filterBox}>
+              <p className={classes.title}>Verdict:</p>
+              <p>{localVerdict}</p>
+            </div>
+          )}
         </div>
-        }
-        {!!localVerdict &&
-        <div className={classes.filterBox}>
-          <p className={classes.title}>Verdict:</p>
-          <p>{localVerdict}</p>
+        <div className={classes.filterButton}>
+          <IconButton
+            style={{ color: "white" }}
+            aria-label="filter"
+            onClick={onClickOpenFilter}
+          >
+            <TuneIcon />
+          </IconButton>
         </div>
-        }
       </div>
-      <div className={classes.filterButton}>
-        <IconButton style={{color: "white"}} aria-label="filter" onClick={onClickOpenFilter}>
-          <TuneIcon />
-        </IconButton>
-      </div>
-    </div>
-      {isOpenFilterPage && 
-        <div className={`${classes.filterExpanded} ${classes.roundedJustOnBottom}`}>
+      {isOpenFilterPage && (
+        <div
+          className={`${classes.filterExpanded} ${classes.roundedJustOnBottom}`}
+        >
           <div className={classes.filtersValue}>
             <FormControl fullWidth>
-              <InputLabel style={{borderBlockColor: "black"}}>Online Judge</InputLabel>
+              <InputLabel style={{ borderBlockColor: "black" }}>
+                Online Judge
+              </InputLabel>
               <Select
                 value={localOnlineJudge}
                 label="Online Judge"
                 onChange={handleOnlineJudgeChange}
-                >
-                {!!codeforcesHandle && <MenuItem value={"Codeforces"}>Codeforces</MenuItem>}
-                {!!uvaHandle && <MenuItem value={"Uva"}>Uva Online Judge</MenuItem>}
-                {!!atcoderHandle && <MenuItem value={"Atcoder"}>Atcoder</MenuItem>}
+              >
+                {!!codeforcesHandle && (
+                  <MenuItem value={"Codeforces"}>Codeforces</MenuItem>
+                )}
+                {!!uvaHandle && (
+                  <MenuItem value={"Uva"}>Uva Online Judge</MenuItem>
+                )}
+                {!!atcoderHandle && (
+                  <MenuItem value={"Atcoder"}>Atcoder</MenuItem>
+                )}
+                {!!spojHandle && <MenuItem value={"Spoj"}>SPOJ</MenuItem>}
               </Select>
             </FormControl>
           </div>
@@ -87,30 +106,28 @@ const Filter = (props) => {
                 value={localVerdict}
                 label="Verdict"
                 onChange={handleVerdictChange}
-                >
+              >
                 <MenuItem value={""}>Select verdict</MenuItem>
                 <MenuItem value={"Accepted"}>Accepted</MenuItem>
                 <MenuItem value={"Wrong Answer"}>Wrong Answer</MenuItem>
-                <MenuItem value={"Time Limit"}>Time Limit</MenuItem>
-                <MenuItem value={"Compile Error"}>Compile Error</MenuItem>
-                <MenuItem value={"Runtime error"}>Runtime error</MenuItem>
               </Select>
             </FormControl>
           </div>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             style={{
               marginLeft: "16px",
               backgroundColor: "#4a8ddc",
-              color: "white"
-            }} onClick={onClickFiltersHandle}
-            >
-              Apply filters
-            </Button>
+              color: "white",
+            }}
+            onClick={onClickFiltersHandle}
+          >
+            Apply filters
+          </Button>
         </div>
-      }
+      )}
     </>
-  )
-}
+  );
+};
 
 export default Filter;

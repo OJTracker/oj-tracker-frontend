@@ -14,6 +14,7 @@ import { uvaApi } from "../../service/uvaApi.js";
 import classes from "./stats.module.css";
 import Spinner from "../../components/Spinner/index.js";
 import Filter from "../../components/Filter/index.js";
+import { spojApi } from "../../service/spojApi.js";
 
 const tableColumns = [
   "submissionId",
@@ -35,6 +36,7 @@ const Stats = () => {
   const codeforcesHandle = useSelector((state) => state.user.codeforcesHandle);
   const uvaHandle = useSelector((state) => state.user.uvaHandle);
   const atcoderHandle = useSelector((state) => state.user.atcoderHandle);
+  const spojHandle = useSelector((state) => state.user.spojHandle);
 
   const [onlineJudge, setOnlineJudge] = useState(
     !!codeforcesHandle
@@ -43,6 +45,8 @@ const Stats = () => {
       ? "Uva"
       : !!atcoderHandle
       ? "Atcoder"
+      : !!spojHandle
+      ? "Spoj"
       : ""
   );
   const [verdict, setVerdict] = useState("Accepted");
@@ -161,6 +165,46 @@ const Stats = () => {
       }
     };
 
+    const getSpojData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await spojApi.get(
+          `/submissions?handle=${spojHandle}&page=${page}&count=${rowsPerPage}&verdict=${verdict}`
+        );
+        setSubmissions(
+          response.data.result.map((res) => ({
+            submission: (
+              <a
+                href={`https://www.spoj.com/status/${res.problemId},${spojHandle}/`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Submission for {res.problemId}
+              </a>
+            ),
+            problem: (
+              <a
+                href={`https://www.spoj.com/problems/${res.problemId}/`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {res.problemId}
+              </a>
+            ),
+            verdict: (
+              <p className={classes[parse(res.verdict)]}>{res.verdict}</p>
+            ),
+            language: <p> - </p>,
+            OnlineJudge: <p>SPOJ</p>,
+          }))
+        );
+        setTotalPages(response.data.totalPages);
+        setIsLoading(false);
+      } catch (error) {
+        console.log("erro when try to fetch spoj submissions");
+      }
+    };
+
     const fixOnlineJudge = async () => {
       await setOnlineJudge(
         !!codeforcesHandle
@@ -169,20 +213,41 @@ const Stats = () => {
           ? "Uva"
           : !!atcoderHandle
           ? "Atcoder"
+          : !!spojHandle
+          ? "Spoj"
           : ""
       );
     };
 
-    if (!onlineJudge && (!!codeforcesHandle || !!atcoderHandle || !!uvaHandle))
+    if (
+      !onlineJudge &&
+      (!!codeforcesHandle || !!atcoderHandle || !!uvaHandle || !!spojHandle)
+    )
       fixOnlineJudge();
     if (onlineJudge === "Codeforces" && !!codeforcesHandle) getCodeforcesData();
     if (onlineJudge === "Uva" && !!uvaHandle) getUvaData();
     if (onlineJudge === "Atcoder" && !!atcoderHandle) getAtcoderData();
-  }, [page, verdict, onlineJudge, codeforcesHandle, uvaHandle, atcoderHandle]);
+    if (onlineJudge === "Spoj" && !!spojHandle) getSpojData();
+  }, [
+    page,
+    verdict,
+    onlineJudge,
+    codeforcesHandle,
+    uvaHandle,
+    atcoderHandle,
+    spojHandle,
+  ]);
 
   useEffect(() => {
     setPage(1);
-  }, [codeforcesHandle, uvaHandle, atcoderHandle, onlineJudge, verdict]);
+  }, [
+    codeforcesHandle,
+    uvaHandle,
+    atcoderHandle,
+    spojHandle,
+    onlineJudge,
+    verdict,
+  ]);
 
   const onPageChange = (event, page) => {
     setPage(page);
@@ -200,7 +265,7 @@ const Stats = () => {
 
   return (
     <>
-      {!codeforcesHandle && !uvaHandle && !atcoderHandle ? (
+      {!codeforcesHandle && !uvaHandle && !atcoderHandle && !spojHandle ? (
         <Redirect to="/" />
       ) : (
         <div className={classes.pageContent}>

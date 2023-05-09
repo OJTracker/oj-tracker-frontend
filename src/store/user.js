@@ -1,13 +1,14 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialUserState = {
   codeforcesHandle: localStorage.getItem("codeforcesHandle") || "",
   atcoderHandle: localStorage.getItem("atcoderHandle") || "",
   uvaHandle: localStorage.getItem("uvaHandle") || "",
+  spojHandle: localStorage.getItem("spojHandle") || "",
 };
 
 const userSlice = createSlice({
-  name: 'userHandles',
+  name: "userHandles",
   initialState: initialUserState,
   reducers: {
     setCodeforcesHandle(state, action) {
@@ -18,6 +19,9 @@ const userSlice = createSlice({
     },
     setUvaHandle(state, action) {
       state.uvaHandle = action.payload;
+    },
+    setSpojHandle(state, action) {
+      state.spojHandle = action.payload;
     },
   },
 });
