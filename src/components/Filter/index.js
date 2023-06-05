@@ -21,6 +21,7 @@ const Filter = (props) => {
   const uvaHandle = useSelector((state) => state.user.uvaHandle);
   const atcoderHandle = useSelector((state) => state.user.atcoderHandle);
   const spojHandle = useSelector((state) => state.user.spojHandle);
+  const codechefHandle = useSelector((state) => state.user.codechefHandle);
 
   const handleOnlineJudgeChange = (event) => {
     setLocalOnlineJudge(event.target.value);
@@ -96,6 +97,9 @@ const Filter = (props) => {
                   <MenuItem value={"Atcoder"}>Atcoder</MenuItem>
                 )}
                 {!!spojHandle && <MenuItem value={"Spoj"}>SPOJ</MenuItem>}
+                {!!codechefHandle && (
+                  <MenuItem value={"Codechef"}>Codechef</MenuItem>
+                )}
               </Select>
             </FormControl>
           </div>

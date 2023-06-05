@@ -15,6 +15,7 @@ import classes from "./stats.module.css";
 import Spinner from "../../components/Spinner/index.js";
 import Filter from "../../components/Filter/index.js";
 import { spojApi } from "../../service/spojApi.js";
+import { codechefApi } from "../../service/codechefApi.js";
 
 const tableColumns = [
   "submissionId",
@@ -37,6 +38,7 @@ const Stats = () => {
   const uvaHandle = useSelector((state) => state.user.uvaHandle);
   const atcoderHandle = useSelector((state) => state.user.atcoderHandle);
   const spojHandle = useSelector((state) => state.user.spojHandle);
+  const codechefHandle = useSelector((state) => state.user.codechefHandle);
 
   const [onlineJudge, setOnlineJudge] = useState(
     !!codeforcesHandle
@@ -47,8 +49,11 @@ const Stats = () => {
       ? "Atcoder"
       : !!spojHandle
       ? "Spoj"
+      : !!codechefHandle
+      ? "Codechef"
       : ""
   );
+
   const [verdict, setVerdict] = useState("Accepted");
 
   useEffect(() => {
@@ -205,6 +210,46 @@ const Stats = () => {
       }
     };
 
+    const getCodechefData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await codechefApi.get(
+          `/submissions?handle=${codechefHandle}&page=${page}&count=${rowsPerPage}&verdict=${verdict}`
+        );
+        setSubmissions(
+          response.data.result.map((res) => ({
+            submission: (
+              <a
+                href={`https://www.codechef.com/status/${res.problemId}?usernames=${codechefHandle}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Submission for {res.problemId}
+              </a>
+            ),
+            problem: (
+              <a
+                href={`https://www.codechef.com/problems/${res.problemId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {res.problemId}
+              </a>
+            ),
+            verdict: (
+              <p className={classes[parse(res.verdict)]}>{res.verdict}</p>
+            ),
+            language: <p> - </p>,
+            OnlineJudge: <p>Codechef</p>,
+          }))
+        );
+        setTotalPages(response.data.totalPages);
+        setIsLoading(false);
+      } catch (error) {
+        console.log("erro when try to fetch codechef submissions");
+      }
+    };
+
     const fixOnlineJudge = async () => {
       await setOnlineJudge(
         !!codeforcesHandle
@@ -215,19 +260,26 @@ const Stats = () => {
           ? "Atcoder"
           : !!spojHandle
           ? "Spoj"
+          : !!codechefHandle
+          ? "Codechef"
           : ""
       );
     };
 
     if (
       !onlineJudge &&
-      (!!codeforcesHandle || !!atcoderHandle || !!uvaHandle || !!spojHandle)
+      (!!codeforcesHandle ||
+        !!atcoderHandle ||
+        !!uvaHandle ||
+        !!spojHandle ||
+        !!codechefHandle)
     )
       fixOnlineJudge();
     if (onlineJudge === "Codeforces" && !!codeforcesHandle) getCodeforcesData();
     if (onlineJudge === "Uva" && !!uvaHandle) getUvaData();
     if (onlineJudge === "Atcoder" && !!atcoderHandle) getAtcoderData();
     if (onlineJudge === "Spoj" && !!spojHandle) getSpojData();
+    if (onlineJudge === "Codechef" && !!codechefHandle) getCodechefData();
   }, [
     page,
     verdict,
@@ -236,6 +288,7 @@ const Stats = () => {
     uvaHandle,
     atcoderHandle,
     spojHandle,
+    codechefHandle,
   ]);
 
   useEffect(() => {
@@ -245,6 +298,7 @@ const Stats = () => {
     uvaHandle,
     atcoderHandle,
     spojHandle,
+    codechefHandle,
     onlineJudge,
     verdict,
   ]);
@@ -265,7 +319,11 @@ const Stats = () => {
 
   return (
     <>
-      {!codeforcesHandle && !uvaHandle && !atcoderHandle && !spojHandle ? (
+      {!codeforcesHandle &&
+      !uvaHandle &&
+      !atcoderHandle &&
+      !spojHandle &&
+      !codechefHandle ? (
         <Redirect to="/" />
       ) : (
         <div className={classes.pageContent}>

@@ -5,6 +5,7 @@ const initialUserState = {
   atcoderHandle: localStorage.getItem("atcoderHandle") || "",
   uvaHandle: localStorage.getItem("uvaHandle") || "",
   spojHandle: localStorage.getItem("spojHandle") || "",
+  codechefHandle: localStorage.getItem("codechefHandle") || "",
 };
 
 const userSlice = createSlice({
@@ -22,6 +23,9 @@ const userSlice = createSlice({
     },
     setSpojHandle(state, action) {
       state.spojHandle = action.payload;
+    },
+    setCodechefHandle(state, action) {
+      state.codechefHandle = action.payload;
     },
   },
 });

@@ -9,15 +9,17 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import { codeforcesApi } from "../../service/codeforcesApi";
 import { uvaApi } from "../../service/uvaApi";
 import { atcoderApi } from "../../service/atcoderApi";
+import { spojApi } from "../../service/spojApi";
+import { codechefApi } from "../../service/codechefApi";
 
 import classes from "./userInfo.module.css";
-import { spojApi } from "../../service/spojApi";
 
 const UserInfo = (props) => {
   const [isCodeforcesUserValid, setIsCodeforcesUserValid] = useState(true);
   const [isUvaUserValid, setIsUvaUserValid] = useState(true);
   const [isAtcoderUserValid, setIsAtcoderUserValid] = useState(true);
   const [isSpojUserValid, setIsSpojUserValid] = useState(true);
+  const [isCodechefUserValid, setIsCodechefUserValid] = useState(true);
 
   const [codeforcesHandle, setCodeforcesHandle] = useState(
     localStorage.getItem("codeforcesHandle") || ""
@@ -31,61 +33,39 @@ const UserInfo = (props) => {
   const [spojHandle, setSpojHandle] = useState(
     localStorage.getItem("spojHandle") || ""
   );
+  const [codechefHandle, setCodechefHandle] = useState(
+    localStorage.getItem("codechefHandle") || ""
+  );
 
   const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
 
-  const checkCodeforcesHandle = async (handles) => {
-    if (handles === "") {
-      return true;
-    }
-
-    const res = await codeforcesApi.get(`/userInfo?handle=${handles}`);
-
-    return res.data.status !== "FAILED";
-  };
-
-  const checkUvaHandle = async (handle) => {
+  const checkOjHandle = async (ojApi, handle) => {
     if (handle === "") {
       return true;
     }
-
-    const res = await uvaApi.get(`/userInfo?handle=${handle}`);
-
-    return res.data.status !== "FAILED";
-  };
-
-  const checkAtcoderHandle = async (handle) => {
-    if (handle === "") {
-      return true;
-    }
-
-    const res = await atcoderApi.get(`/userInfo?handle=${handle}`);
-    return res.data.status !== "FAILED";
-  };
-
-  const checkSpojHandle = async (handle) => {
-    if (handle === "") {
-      return true;
-    }
-
-    const res = await spojApi.get(`/userInfo?handle=${handle}`);
+    const res = await ojApi.get(`/userInfo?handle=${handle}`);
     return res.data.status !== "FAILED";
   };
 
   const handleSubmit = async () => {
     setIsLoading(true);
 
-    const codeforcesUserExists = await checkCodeforcesHandle(codeforcesHandle);
-    const uvaUserExists = await checkUvaHandle(uvaHandle);
-    const atcoderUserExists = await checkAtcoderHandle(atcoderHandle);
-    const spojUserExists = await checkSpojHandle(spojHandle);
+    const codeforcesUserExists = await checkOjHandle(
+      codeforcesApi,
+      codeforcesHandle
+    );
+    const uvaUserExists = await checkOjHandle(uvaApi, uvaHandle);
+    const atcoderUserExists = await checkOjHandle(atcoderApi, atcoderHandle);
+    const spojUserExists = await checkOjHandle(spojApi, spojHandle);
+    const codechefUserExists = await checkOjHandle(codechefApi, codechefHandle);
 
     setIsCodeforcesUserValid(codeforcesUserExists);
     setIsUvaUserValid(uvaUserExists);
     setIsAtcoderUserValid(atcoderUserExists);
     setIsSpojUserValid(spojUserExists);
+    setIsCodechefUserValid(codechefUserExists);
 
     if (codeforcesUserExists) {
       localStorage.setItem("codeforcesHandle", codeforcesHandle);
@@ -107,11 +87,17 @@ const UserInfo = (props) => {
       dispatch(userActions.setSpojHandle(spojHandle));
     }
 
+    if (codechefUserExists) {
+      localStorage.setItem("codechefHandle", codechefHandle);
+      dispatch(userActions.setCodechefHandle(codechefHandle));
+    }
+
     if (
       codeforcesUserExists &&
       uvaUserExists &&
       atcoderUserExists &&
-      spojUserExists
+      spojUserExists &&
+      codechefUserExists
     ) {
       props.onClose();
     }
@@ -154,6 +140,14 @@ const UserInfo = (props) => {
           label={"SPOJ Handle"}
           error={!isSpojUserValid}
           helperText={!isSpojUserValid ? "User does not exists" : " "}
+        />
+        <TextField
+          className={classes.FormInput}
+          onChange={(e) => setCodechefHandle(e.target.value)}
+          value={codechefHandle}
+          label={"Codechef Handle"}
+          error={!isCodechefUserValid}
+          helperText={!isCodechefUserValid ? "User does not exists" : " "}
         />
         <LoadingButton
           loading={isLoading}

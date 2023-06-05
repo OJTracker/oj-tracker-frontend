@@ -9,11 +9,13 @@ import Table from "../../components/Table/index.js";
 import { atcoderApi } from "../../service/atcoderApi.js";
 import { codeforcesApi } from "../../service/codeforcesApi.js";
 import { uvaApi } from "../../service/uvaApi.js";
+import { spojApi } from "../../service/spojApi.js";
+import { codechefApi } from "../../service/codechefApi.js";
 
 import classes from "./recommendation.module.css";
 import Spinner from "../../components/Spinner/index.js";
-import { spojApi } from "../../service/spojApi.js";
 
+import RecommendationFilter from "../../components/RecommendationFilter/index.js";
 const tableColumns = ["Problem", "Difficulty", "Online Judge"];
 
 const Recommendation = () => {
@@ -21,26 +23,44 @@ const Recommendation = () => {
   const uvaHandle = useSelector((state) => state.user.uvaHandle);
   const atcoderHandle = useSelector((state) => state.user.atcoderHandle);
   const spojHandle = useSelector((state) => state.user.spojHandle);
+  const codechefHandle = useSelector((state) => state.user.codechefHandle);
 
-  const [data, setData] = useState([]);
+  const [recommendationMethod, setRecommendationMethod] =
+    useState("byUserRating");
+  const [tag, setTag] = useState("");
+  const [minDifficulty, setMinDifficulty] = useState("");
+  const [maxDifficulty, setMaxDifficulty] = useState("");
+  const [cpBookEdition, setCpBookEdition] = useState("");
 
-  const [isCodeforcesLoading, setIsCodeforcesLoading] = useState(false);
-  const [isUvaLoading, setIsUvaLoading] = useState(false);
-  const [isAtcoderLoading, setIsAtcoderLoading] = useState(false);
-  const [isSpojLoading, setIsSpojLoading] = useState(false);
+  const [queryParams, setQueryParams] = useState("");
+
+  const [onlineJudge, setOnlineJudge] = useState(
+    !!codeforcesHandle
+      ? "Codeforces"
+      : !!uvaHandle
+      ? "Uva"
+      : !!atcoderHandle
+      ? "Atcoder"
+      : !!spojHandle
+      ? "Spoj"
+      : !!codechefHandle
+      ? "Codechef"
+      : ""
+  );
+
+  const [recommendation, setRecommendation] = useState([]);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setData((prevState) => []);
-
-    const getCodeforcesData = async () => {
+    const getCodeforcesRecommendation = async () => {
       try {
-        setIsCodeforcesLoading(true);
+        setIsLoading(true);
         const response = await codeforcesApi.get(
-          `/recommendation?handle=${codeforcesHandle}`
+          `/recommendation/${recommendationMethod}?handle=${codeforcesHandle}&${queryParams}`
         );
-        await setData((prevState) => [
-          ...prevState,
-          ...response.data.result.map((res) => ({
+        setRecommendation(
+          response.data.result.map((res) => ({
             problem: (
               <a
                 href={`https://codeforces.com/contest/${res.contestId}/problem/${res.index}`}
@@ -52,23 +72,22 @@ const Recommendation = () => {
             ),
             difficulty: <p>{res.rating}</p>,
             onlineJudge: <p>Codeforces</p>,
-          })),
-        ]);
-        setIsCodeforcesLoading(false);
+          }))
+        );
+        setIsLoading(false);
       } catch (error) {
         console.log("erro when try to fetch codeforces recommendation");
       }
     };
 
-    const getUvaData = async () => {
+    const getUvaRecommendation = async () => {
       try {
-        setIsUvaLoading(true);
+        setIsLoading(true);
         const response = await uvaApi.get(
-          `/recommendation?handle=${uvaHandle}`
+          `/recommendation/${recommendationMethod}?handle=${uvaHandle}&${queryParams}`
         );
-        await setData((prevState) => [
-          ...prevState,
-          ...response.data.result.map((res) => ({
+        setRecommendation(
+          response.data.result.map((res) => ({
             problem: (
               <a
                 href={`https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=8&page=show_problem&problem=${res.id}`}
@@ -79,24 +98,23 @@ const Recommendation = () => {
               </a>
             ),
             difficulty: <p>{res.dacu}</p>,
-            onlineJudge: <p>UVA OJ</p>,
-          })),
-        ]);
-        setIsUvaLoading(false);
+            onlineJudge: <p>Online Judge</p>,
+          }))
+        );
+        setIsLoading(false);
       } catch (error) {
-        console.log("erro when try to fetch uva recommendation");
+        console.log("erro when try to fetch online judgge recommendation");
       }
     };
 
-    const getAtcoderData = async () => {
+    const getAtcoderRecommendation = async () => {
       try {
-        setIsAtcoderLoading(true);
+        setIsLoading(true);
         const response = await atcoderApi.get(
-          `/recommendation?handle=${atcoderHandle}`
+          `/recommendation/${recommendationMethod}?handle=${atcoderHandle}&${queryParams}`
         );
-        await setData((prevState) => [
-          ...prevState,
-          ...response.data.result.map((res) => ({
+        setRecommendation(
+          response.data.result.map((res) => ({
             problem: (
               <a
                 href={`https://atcoder.jp/contests/${res.contestId}/tasks/${res.problemId}`}
@@ -106,49 +124,115 @@ const Recommendation = () => {
                 {res.title}
               </a>
             ),
-            difficulty: <p>{res.solverCount}</p>,
-            OnlineJudge: <p>AtCoder</p>,
-          })),
-        ]);
-        setIsAtcoderLoading(false);
+            difficulty: <p>{res.difficulty}</p>,
+            onlineJudge: <p>Atcoder</p>,
+          }))
+        );
+        setIsLoading(false);
       } catch (error) {
         console.log("erro when try to fetch atcoder recommendation");
       }
     };
 
-    const getSpojData = async () => {
+    const getSPOJRecommendation = async () => {
       try {
-        setIsSpojLoading(true);
+        setIsLoading(true);
         const response = await spojApi.get(
-          `/recommendation?handle=${atcoderHandle}`
+          `/recommendation/${recommendationMethod}?handle=${spojHandle}&${queryParams}`
         );
-        await setData((prevState) => [
-          ...prevState,
-          ...response.data.result.map((res) => ({
+        setRecommendation(
+          response.data.result.map((res) => ({
             problem: (
               <a
-                href={`https://www.spoj.com/problems/${res.problemId}/`}
+                href={`https://www.spoj.com/problems/${res.problemId}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 {res.problemName}
               </a>
             ),
-            difficulty: <p>{res.acc}</p>,
-            OnlineJudge: <p>SPOJ</p>,
-          })),
-        ]);
-        setIsSpojLoading(false);
+            difficulty: <p>{res.users}</p>,
+            onlineJudge: <p>SPOJ</p>,
+          }))
+        );
+        setIsLoading(false);
       } catch (error) {
         console.log("erro when try to fetch spoj recommendation");
       }
     };
 
-    if (!!codeforcesHandle) getCodeforcesData();
-    if (!!uvaHandle) getUvaData();
-    if (!!atcoderHandle) getAtcoderData();
-    if (!!spojHandle) getSpojData();
-  }, [codeforcesHandle, uvaHandle, atcoderHandle, spojHandle]);
+    const getCodechefRecommendation = async () => {
+      try {
+        setIsLoading(true);
+        const response = await codechefApi.get(
+          `/recommendation/${recommendationMethod}?handle=${codechefHandle}&${queryParams}`
+        );
+        setRecommendation(
+          response.data.result.map((res) => ({
+            problem: (
+              <a
+                href={`https://www.codechef.com/problems/${res.problemId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {res.problemName}
+              </a>
+            ),
+            difficulty: <p>{res.difficulty}</p>,
+            onlineJudge: <p>Codechef</p>,
+          }))
+        );
+        setIsLoading(false);
+      } catch (error) {
+        console.log("erro when try to fetch codechef recommendation");
+      }
+    };
+
+    const fixOnlineJudge = async () => {
+      await setOnlineJudge(
+        !!codeforcesHandle
+          ? "Codeforces"
+          : !!uvaHandle
+          ? "Uva"
+          : !!atcoderHandle
+          ? "Atcoder"
+          : !!spojHandle
+          ? "Spoj"
+          : !!codechefHandle
+          ? "Codechef"
+          : ""
+      );
+    };
+
+    if (
+      !onlineJudge &&
+      (!!codeforcesHandle ||
+        !!atcoderHandle ||
+        !!uvaHandle ||
+        !!spojHandle ||
+        !!codechefHandle)
+    ) {
+      fixOnlineJudge();
+    }
+
+    if (onlineJudge === "Codeforces" && !!codeforcesHandle)
+      getCodeforcesRecommendation();
+    if (onlineJudge === "Uva" && !!uvaHandle) getUvaRecommendation();
+    if (onlineJudge === "Atcoder" && !!atcoderHandle)
+      getAtcoderRecommendation();
+    if (onlineJudge === "Spoj" && !!spojHandle) getSPOJRecommendation();
+    if (onlineJudge === "Codechef" && !!codechefHandle)
+      getCodechefRecommendation();
+  }, [
+    codeforcesHandle,
+    uvaHandle,
+    atcoderHandle,
+    spojHandle,
+    codechefHandle,
+    onlineJudge,
+    recommendationMethod,
+    queryParams,
+  ]);
 
   return (
     <>
@@ -157,11 +241,27 @@ const Recommendation = () => {
       ) : (
         <div className={classes.pageContent}>
           <Paper className={classes.tablePaper}>
-            {isCodeforcesLoading || isUvaLoading || isAtcoderLoading ? (
+            {isLoading ? (
               <Spinner />
             ) : (
               <>
-                <Table columns={tableColumns} rows={data} />
+                <RecommendationFilter
+                  recommendationMethod={recommendationMethod}
+                  setRecommendationMethod={setRecommendationMethod}
+                  queryParams={queryParams}
+                  setQueryParams={setQueryParams}
+                  onlineJudge={onlineJudge}
+                  setOnlineJudge={setOnlineJudge}
+                  tag={tag}
+                  setTag={setTag}
+                  minDifficulty={minDifficulty}
+                  setMinDifficulty={setMinDifficulty}
+                  maxDifficulty={maxDifficulty}
+                  setMaxDifficulty={setMaxDifficulty}
+                  cpBookEdition={cpBookEdition}
+                  setCpBookEdition={setCpBookEdition}
+                />
+                <Table columns={tableColumns} rows={recommendation} />
               </>
             )}
           </Paper>

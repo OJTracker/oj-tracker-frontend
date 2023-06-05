@@ -1,0 +1,64 @@
+.filters {
+  width: 90%;
+  height: 56px;
+  padding: 8px 0px;
+  margin: 16px 5% 0px 5%;
+  display: flex;
+  background-color: #4c5d8a;
+  align-items: center;
+}
+
+.roundedJustOnTop {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.rounded {
+  border-radius: 8px;
+}
+
+.roundedJustOnBottom {
+  border-end-start-radius: 8px;
+  border-end-end-radius: 8px;
+}
+
+.filterButton {
+  justify-self: flex-end;
+}
+
+.filterExpanded {
+  width: 90%;
+  padding: 8px 0px;
+  margin: 0px 5% 0px 5%;
+  align-items: center;
+  background-color: rgba(76, 93, 138, 0.1);
+}
+
+.filtersValue {
+  margin: 16px;
+}
+
+.filtersActives {
+  display: flex;
+  align-items: center;
+  margin-right: auto;
+  overflow: auto;
+}
+
+.filterBox {
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  background-color: #4a8ddc;
+  height: 30px;
+  margin-left: 8px;
+  border-radius: 5px;
+  color: white;
+}
+
+.title {
+  font-weight: bold;
+  margin-left: 6px;
+  margin-right: 6px;
+  color: white;
+}

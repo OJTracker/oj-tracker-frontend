@@ -13,6 +13,7 @@ const App = () => {
   const uvaHandle = useSelector((state) => state.user.uvaHandle);
   const atcoderHandle = useSelector((state) => state.user.atcoderHandle);
   const spojHandle = useSelector((state) => state.user.spojHandle);
+  const codechefHandle = useSelector((state) => state.user.codechefHandle);
 
   const showUserInfoHandler = () => {
     setUserInfoIsShown(true);
@@ -23,7 +24,13 @@ const App = () => {
   };
 
   const usersIsNotSetted = () => {
-    return !codeforcesHandle && !uvaHandle && !atcoderHandle && !spojHandle;
+    return (
+      !codeforcesHandle &&
+      !uvaHandle &&
+      !atcoderHandle &&
+      !spojHandle &&
+      !codechefHandle
+    );
   };
 
   return (

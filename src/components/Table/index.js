@@ -4,11 +4,13 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import generateRandomKey from "../../utils/generateRandomKey";
 
 const MyTable = (props) => {
   return (
     <TableContainer>
       <Table
+        key={generateRandomKey()}
         sx={{ minWidth: 650, width: "90%", margin: "0 5% 0 5%" }}
         aria-label="simple table"
       >
@@ -16,7 +18,11 @@ const MyTable = (props) => {
           <TableRow key={"#key-head"}>
             {props.columns.map((c) => {
               return (
-                <TableCell align="left" style={{ fontWeight: "bold" }}>
+                <TableCell
+                  key={generateRandomKey()}
+                  align="left"
+                  style={{ fontWeight: "bold" }}
+                >
                   {c}
                 </TableCell>
               );
@@ -26,11 +32,13 @@ const MyTable = (props) => {
         <TableBody>
           {props.rows.map((row) => (
             <TableRow
-              key={row.id}
+              key={generateRandomKey()}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               {Object.keys(row).map((r) => (
-                <TableCell align="left">{row[r]}</TableCell>
+                <TableCell key={generateRandomKey()} align="left">
+                  {row[r]}
+                </TableCell>
               ))}
             </TableRow>
           ))}
