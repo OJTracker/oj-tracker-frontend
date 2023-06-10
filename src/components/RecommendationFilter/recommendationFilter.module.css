@@ -62,3 +62,12 @@
   margin-right: 6px;
   color: white;
 }
+
+.tooltipField {
+  display: flex;
+}
+
+.tooltip {
+  margin-left: 10px;
+  align-self: center;
+}

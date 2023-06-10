@@ -12,6 +12,8 @@ import TextField from "@mui/material/TextField";
 
 import classes from "./recommendationFilter.module.css";
 import { Button } from "@mui/material";
+import Tooltip from "@mui/material/Tooltip";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 
 import codechefTags from "../../assets/ojTags/codechef-tags.json";
 import codeforcesTags from "../..//assets/ojTags/codeforces-tags.json";
@@ -22,6 +24,8 @@ import uvaCP3Tags from "../..//assets/ojTags/uva-cp3.json";
 import generateRandomKey from "../../utils/generateRandomKey";
 
 const RecommendationFilter = (props) => {
+  const [minDifficultyTooltip, setMinDifficultyTooltip] = useState("");
+  const [maxDifficultyTooltip, setMaxDifficultyTooltip] = useState("");
   const [isOpenFilterPage, setIsOpenFilterPage] = useState(false);
 
   const [localOnlineJudge, setLocalOnlineJudge] = useState(props.onlineJudge);
@@ -42,6 +46,7 @@ const RecommendationFilter = (props) => {
 
   const [shouldShowTagList, setShouldShowTagList] = useState(true);
   const [tagList, setTagList] = useState([]);
+  const [allRequiredsFields, setAllRequiredFields] = useState(true);
 
   const codeforcesHandle = useSelector((state) => state.user.codeforcesHandle);
   const uvaHandle = useSelector((state) => state.user.uvaHandle);
@@ -61,6 +66,14 @@ const RecommendationFilter = (props) => {
     setLocalTag(event.target.value);
   };
 
+  const handleMinDifficultyChange = (event) => {
+    setLocalMinDifficulty(event.target.value);
+  };
+
+  const handleMaxDifficultyChange = (event) => {
+    setLocalMaxDifficulty(event.target.value);
+  };
+
   const getDifficultyPattern = () => {
     if (localOnlineJudge === "Codeforces" || localOnlineJudge === "Codechef") {
       return "Rating";
@@ -70,16 +83,37 @@ const RecommendationFilter = (props) => {
     return "Dacu";
   };
 
+  const checkFields = () => {
+    if (
+      localRecommendationMethod === "byProblemRating" &&
+      (!localMinDifficulty || !localMaxDifficulty)
+    ) {
+      setAllRequiredFields(false);
+      return false;
+    } else if (
+      localRecommendationMethod === "byCPBook" &&
+      !localCpBookEdition
+    ) {
+      setAllRequiredFields(false);
+      return false;
+    }
+    setAllRequiredFields(true);
+    return true;
+  };
+
   const onClickFiltersHandle = () => {
-    props.setOnlineJudge(localOnlineJudge);
-    props.setRecommendationMethod(localRecommendationMethod);
-    props.setCpBookEdition(localCpBookEdition);
-    props.setMinDifficulty(localMinDifficulty);
-    props.setMaxDifficulty(localMaxDifficulty);
-    props.setTag(localTag);
-    const queryParams = `min${getDifficultyPattern()}=${localMinDifficulty}&max${getDifficultyPattern()}=${localMaxDifficulty}&tag=${localTag}&bookEdition=${localCpBookEdition}`;
-    props.setQueryParams(queryParams);
-    setIsOpenFilterPage((prevState) => !prevState);
+    console.log("checkFields: ", checkFields());
+    if (checkFields()) {
+      props.setOnlineJudge(localOnlineJudge);
+      props.setRecommendationMethod(localRecommendationMethod);
+      props.setCpBookEdition(localCpBookEdition);
+      props.setMinDifficulty(localMinDifficulty);
+      props.setMaxDifficulty(localMaxDifficulty);
+      props.setTag(localTag);
+      const queryParams = `min${getDifficultyPattern()}=${localMinDifficulty}&max${getDifficultyPattern()}=${localMaxDifficulty}&tag=${localTag}&bookEdition=${localCpBookEdition}`;
+      props.setQueryParams(queryParams);
+      setIsOpenFilterPage((prevState) => !prevState);
+    }
   };
 
   const onClickOpenFilter = () => {
@@ -98,6 +132,32 @@ const RecommendationFilter = (props) => {
           !!localCpBookEdition)
       );
     };
+
+    const setTooltipText = () => {
+      if (localRecommendationMethod === "byProblemRating") {
+        if (
+          localOnlineJudge === "Codeforces" ||
+          localOnlineJudge === "Codechef" ||
+          localOnlineJudge === "Atcoder"
+        ) {
+          setMaxDifficultyTooltip(
+            "the difficulty of the problems on this platform are similar to user ratings, so the higher the difficulty, the harder the problem will be"
+          );
+          setMinDifficultyTooltip(
+            "The difficulty of the problems on this platform are similar to user ratings, so the lower the difficulty, the easier the problem will be."
+          );
+        } else {
+          setMaxDifficultyTooltip(
+            "the difficulty of the problems on this platform are based on how many people solved the question, so the higher the difficulty, the easier the problem will be"
+          );
+          setMinDifficultyTooltip(
+            "the difficulty of the problems on this platform are based on how many people solved the question, so the lower the difficulty, the harder the problem will be"
+          );
+        }
+      }
+    };
+
+    setTooltipText();
 
     const loadTagList = () => {
       if (localOnlineJudge === "Codeforces") {
@@ -119,8 +179,6 @@ const RecommendationFilter = (props) => {
     const shouldListTags = showTags();
     setShouldShowTagList(shouldListTags);
 
-    console.log("listTags: ", shouldListTags);
-
     if (shouldListTags) loadTagList();
     else setLocalTag("");
 
@@ -131,6 +189,10 @@ const RecommendationFilter = (props) => {
 
     if (localRecommendationMethod !== "byCPBook") setLocalCpBookEdition("");
   }, [localRecommendationMethod, localOnlineJudge, localCpBookEdition]);
+
+  useEffect(() => {
+    setLocalRecommendationMethod("byUserRating");
+  }, [localOnlineJudge]);
 
   return (
     <>
@@ -241,28 +303,46 @@ const RecommendationFilter = (props) => {
           </div>
           {localRecommendationMethod === "byProblemRating" && (
             <div className={classes.filtersValue}>
-              <FormControl sx={{ width: "40ch", marginRight: "18px" }}>
-                <TextField
-                  key={generateRandomKey()}
-                  label="minDifficulty"
-                  value={localMinDifficulty || ""}
-                  onChange={(event) =>
-                    setLocalMinDifficulty(event.target.value)
-                  }
-                  inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-                />
-              </FormControl>
-              <FormControl sx={{ width: "40ch" }}>
-                <TextField
-                  key={generateRandomKey()}
-                  label="maxDifficulty"
-                  value={localMaxDifficulty || ""}
-                  onChange={(event) =>
-                    setLocalMaxDifficulty(event.target.value)
-                  }
-                  inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-                />
-              </FormControl>
+              <div className={classes.tooltipField}>
+                <FormControl sx={{ width: "40ch" }}>
+                  <TextField
+                    label="minDifficulty"
+                    value={localMinDifficulty || ""}
+                    onChange={handleMinDifficultyChange}
+                    error={!allRequiredsFields && !localMinDifficulty}
+                    helperText={
+                      !allRequiredsFields && !localMinDifficulty
+                        ? "This field is required!"
+                        : " "
+                    }
+                  />
+                </FormControl>
+                <div className={classes.tooltip}>
+                  <Tooltip title={minDifficultyTooltip} arrow>
+                    <HelpOutlineIcon />
+                  </Tooltip>
+                </div>
+              </div>
+              <div className={classes.tooltipField}>
+                <FormControl sx={{ width: "40ch" }}>
+                  <TextField
+                    label="maxDifficulty"
+                    value={localMaxDifficulty || ""}
+                    onChange={handleMaxDifficultyChange}
+                    error={!allRequiredsFields && !localMaxDifficulty}
+                    helperText={
+                      !allRequiredsFields && !localMaxDifficulty
+                        ? "This field is required!"
+                        : " "
+                    }
+                  />
+                </FormControl>
+                <div className={classes.tooltip}>
+                  <Tooltip title={maxDifficultyTooltip} arrow>
+                    <HelpOutlineIcon />
+                  </Tooltip>
+                </div>
+              </div>
             </div>
           )}
           {localRecommendationMethod === "byCPBook" && (
@@ -275,6 +355,12 @@ const RecommendationFilter = (props) => {
                   onChange={(event) => {
                     setLocalCpBookEdition(event.target.value);
                   }}
+                  error={!allRequiredsFields && !localCpBookEdition}
+                  helperText={
+                    !allRequiredsFields && !localCpBookEdition
+                      ? "This field is required!"
+                      : " "
+                  }
                 >
                   <MenuItem key={generateRandomKey()} value={1}>
                     1

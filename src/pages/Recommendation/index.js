@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 
 import { Redirect } from "react-router-dom";
 
+import Modal from "../../components/Modal/index.js";
+
 import { Paper } from "@material-ui/core";
 import Table from "../../components/Table/index.js";
 
@@ -16,6 +18,8 @@ import classes from "./recommendation.module.css";
 import Spinner from "../../components/Spinner/index.js";
 
 import RecommendationFilter from "../../components/RecommendationFilter/index.js";
+import { Button } from "@mui/material";
+
 const tableColumns = ["Problem", "Difficulty", "Online Judge"];
 
 const Recommendation = () => {
@@ -52,6 +56,12 @@ const Recommendation = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const [shoNotDataFoundModal, setShowNotDataFoundModal] = useState(false);
+
+  const hideModal = () => {
+    setShowNotDataFoundModal(false);
+  };
+
   useEffect(() => {
     const getCodeforcesRecommendation = async () => {
       try {
@@ -75,6 +85,7 @@ const Recommendation = () => {
           }))
         );
         setIsLoading(false);
+        setShowNotDataFoundModal(response.data.result.length <= 0);
       } catch (error) {
         console.log("erro when try to fetch codeforces recommendation");
       }
@@ -102,6 +113,7 @@ const Recommendation = () => {
           }))
         );
         setIsLoading(false);
+        setShowNotDataFoundModal(response.data.result.length <= 0);
       } catch (error) {
         console.log("erro when try to fetch online judgge recommendation");
       }
@@ -129,6 +141,7 @@ const Recommendation = () => {
           }))
         );
         setIsLoading(false);
+        setShowNotDataFoundModal(response.data.result.length <= 0);
       } catch (error) {
         console.log("erro when try to fetch atcoder recommendation");
       }
@@ -156,6 +169,7 @@ const Recommendation = () => {
           }))
         );
         setIsLoading(false);
+        setShowNotDataFoundModal(response.data.result.length <= 0);
       } catch (error) {
         console.log("erro when try to fetch spoj recommendation");
       }
@@ -183,6 +197,7 @@ const Recommendation = () => {
           }))
         );
         setIsLoading(false);
+        setShowNotDataFoundModal(response.data.result.length <= 0);
       } catch (error) {
         console.log("erro when try to fetch codechef recommendation");
       }
@@ -261,7 +276,21 @@ const Recommendation = () => {
                   cpBookEdition={cpBookEdition}
                   setCpBookEdition={setCpBookEdition}
                 />
-                <Table columns={tableColumns} rows={recommendation} />
+                {recommendation.length > 0 && (
+                  <Table columns={tableColumns} rows={recommendation} />
+                )}
+                {shoNotDataFoundModal && (
+                  <Modal onClose={hideModal}>
+                    <Paper className={classes.Paper}>
+                      <h2>Data not Found</h2>
+                      <div>
+                        No recommendation was found for the user and method
+                        selected!
+                      </div>
+                      <Button onClick={hideModal}>Close</Button>
+                    </Paper>
+                  </Modal>
+                )}
               </>
             )}
           </Paper>
