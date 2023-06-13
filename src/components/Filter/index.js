@@ -17,11 +17,13 @@ const Filter = (props) => {
   const [localOnlineJudge, setLocalOnlineJudge] = useState(props.onlineJudge);
   const [localVerdict, setLocalVerdict] = useState(props.verdict);
 
-  const codeforcesHandle = useSelector((state) => state.user.codeforcesHandle);
-  const uvaHandle = useSelector((state) => state.user.uvaHandle);
-  const atcoderHandle = useSelector((state) => state.user.atcoderHandle);
-  const spojHandle = useSelector((state) => state.user.spojHandle);
-  const codechefHandle = useSelector((state) => state.user.codechefHandle);
+  const codeforcesHandle = useSelector(
+    (state) => state.handles.codeforcesHandle
+  );
+  const uvaHandle = useSelector((state) => state.handles.uvaHandle);
+  const atcoderHandle = useSelector((state) => state.handles.atcoderHandle);
+  const spojHandle = useSelector((state) => state.handles.spojHandle);
+  const codechefHandle = useSelector((state) => state.handles.codechefHandle);
 
   const handleOnlineJudgeChange = (event) => {
     setLocalOnlineJudge(event.target.value);

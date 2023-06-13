@@ -5,15 +5,36 @@ import Routes from "./Routes";
 
 import TopBar from "./components/TopBar";
 import UserInfo from "./components/UserInfo";
+import ASide from "./components/ASide";
+
+import { makeStyles } from "@material-ui/core/styles";
+import { AppBar, Container, Grid } from "@material-ui/core";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+  },
+  appBar: {
+    zIndex: theme.zIndex.drawer + 1,
+  },
+  content: {
+    flexGrow: 1,
+    marginTop: "66px",
+    padding: theme.spacing(3),
+  },
+}));
 
 const App = () => {
+  const classes = useStyles();
   const [userInfoIsShown, setUserInfoIsShown] = useState(false);
 
-  const codeforcesHandle = useSelector((state) => state.user.codeforcesHandle);
-  const uvaHandle = useSelector((state) => state.user.uvaHandle);
-  const atcoderHandle = useSelector((state) => state.user.atcoderHandle);
-  const spojHandle = useSelector((state) => state.user.spojHandle);
-  const codechefHandle = useSelector((state) => state.user.codechefHandle);
+  const codeforcesHandle = useSelector(
+    (state) => state.handles.codeforcesHandle
+  );
+  const uvaHandle = useSelector((state) => state.handles.uvaHandle);
+  const atcoderHandle = useSelector((state) => state.handles.atcoderHandle);
+  const spojHandle = useSelector((state) => state.handles.spojHandle);
+  const codechefHandle = useSelector((state) => state.handles.codechefHandle);
 
   const showUserInfoHandler = () => {
     setUserInfoIsShown(true);
@@ -38,10 +59,20 @@ const App = () => {
       {(userInfoIsShown || usersIsNotSetted()) && (
         <UserInfo onClose={hideUserInfoHandler} />
       )}
-      <TopBar onShowUserInfo={showUserInfoHandler} />
-      <main className="main">
-        <Routes />
-      </main>
+      <div className={classes.root}>
+        <AppBar position="fixed" className={classes.appBar}>
+          <TopBar onShowUserInfo={showUserInfoHandler} />
+        </AppBar>
+        <ASide />
+        <main className={classes.content}>
+          <div className={classes.toolbar} />
+          <Container maxWidth="lg">
+            <Grid container spacing={3}>
+              <Routes />
+            </Grid>
+          </Container>
+        </main>
+      </div>
     </>
   );
 };

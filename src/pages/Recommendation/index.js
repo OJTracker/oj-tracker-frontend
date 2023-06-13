@@ -23,11 +23,13 @@ import { Button } from "@mui/material";
 const tableColumns = ["Problem", "Difficulty", "Online Judge"];
 
 const Recommendation = () => {
-  const codeforcesHandle = useSelector((state) => state.user.codeforcesHandle);
-  const uvaHandle = useSelector((state) => state.user.uvaHandle);
-  const atcoderHandle = useSelector((state) => state.user.atcoderHandle);
-  const spojHandle = useSelector((state) => state.user.spojHandle);
-  const codechefHandle = useSelector((state) => state.user.codechefHandle);
+  const codeforcesHandle = useSelector(
+    (state) => state.handles.codeforcesHandle
+  );
+  const uvaHandle = useSelector((state) => state.handles.uvaHandle);
+  const atcoderHandle = useSelector((state) => state.handles.atcoderHandle);
+  const spojHandle = useSelector((state) => state.handles.spojHandle);
+  const codechefHandle = useSelector((state) => state.handles.codechefHandle);
 
   const [recommendationMethod, setRecommendationMethod] =
     useState("byUserRating");
@@ -257,7 +259,9 @@ const Recommendation = () => {
         <div className={classes.pageContent}>
           <Paper className={classes.tablePaper}>
             {isLoading ? (
-              <Spinner />
+              <>
+                <Spinner />
+              </>
             ) : (
               <>
                 <RecommendationFilter

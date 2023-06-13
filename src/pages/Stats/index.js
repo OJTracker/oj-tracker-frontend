@@ -3,9 +3,10 @@ import { useSelector } from "react-redux";
 
 import { Redirect } from "react-router-dom";
 
-import { Paper } from "@material-ui/core";
 import Table from "../../components/Table/index.js";
 import Pagination from "@mui/material/Pagination";
+
+import Modal from "../../components/Modal/index.js";
 
 import { atcoderApi } from "../../service/atcoderApi.js";
 import { codeforcesApi } from "../../service/codeforcesApi.js";
@@ -13,9 +14,10 @@ import { uvaApi } from "../../service/uvaApi.js";
 
 import classes from "./stats.module.css";
 import Spinner from "../../components/Spinner/index.js";
-import Filter from "../../components/Filter/index.js";
 import { spojApi } from "../../service/spojApi.js";
 import { codechefApi } from "../../service/codechefApi.js";
+
+import Chart from "../../components/Chart/index.js";
 
 const tableColumns = [
   "submissionId",
@@ -25,41 +27,50 @@ const tableColumns = [
   "Online Judge",
 ];
 
-const rowsPerPage = 15;
+const rowsPerPage = 5;
 
 const Stats = () => {
   const [isLoading, setIsLoading] = useState(false);
 
+  const [shouldGetSubmissions, setShouldGetSubmissions] = useState(false);
+  const [isSubmissionsLoading, setIsSubmissionsLoading] = useState(false);
   const [submissions, setSubmissions] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const codeforcesHandle = useSelector((state) => state.user.codeforcesHandle);
-  const uvaHandle = useSelector((state) => state.user.uvaHandle);
-  const atcoderHandle = useSelector((state) => state.user.atcoderHandle);
-  const spojHandle = useSelector((state) => state.user.spojHandle);
-  const codechefHandle = useSelector((state) => state.user.codechefHandle);
+  const [codeforcesUserStats, setCodeforcesUserStats] = useState([]);
+  const [atcoderUserStats, setAtcoderUserStats] = useState([]);
+  const [uvaUserStats, setUvaUserStats] = useState([]);
+  const [spojUserStats, setSpojUserStats] = useState([]);
+  const [codechefUserStats, setCodechefUserStats] = useState([]);
 
-  const [onlineJudge, setOnlineJudge] = useState(
-    !!codeforcesHandle
-      ? "Codeforces"
-      : !!uvaHandle
-      ? "Uva"
-      : !!atcoderHandle
-      ? "Atcoder"
-      : !!spojHandle
-      ? "Spoj"
-      : !!codechefHandle
-      ? "Codechef"
-      : ""
+  const [shouldShowModal, setShouldShowModal] = useState(false);
+
+  const showModal = () => {
+    setShouldShowModal(true);
+  };
+
+  const hideModal = () => {
+    setShouldShowModal(false);
+    setShouldGetSubmissions(false);
+  };
+
+  const codeforcesHandle = useSelector(
+    (state) => state.handles.codeforcesHandle
   );
+  const uvaHandle = useSelector((state) => state.handles.uvaHandle);
+  const atcoderHandle = useSelector((state) => state.handles.atcoderHandle);
+  const spojHandle = useSelector((state) => state.handles.spojHandle);
+  const codechefHandle = useSelector((state) => state.handles.codechefHandle);
+
+  const [onlineJudge, setOnlineJudge] = useState("");
 
   const [verdict, setVerdict] = useState("Accepted");
 
   useEffect(() => {
     const getCodeforcesData = async () => {
       try {
-        setIsLoading(true);
+        setIsSubmissionsLoading(true);
         const response = await codeforcesApi.get(
           `/submissions?handle=${codeforcesHandle}&page=${page}&count=${rowsPerPage}&verdict=${verdict}`
         );
@@ -92,7 +103,7 @@ const Stats = () => {
           }))
         );
         setTotalPages(response.data.totalPages);
-        setIsLoading(false);
+        setIsSubmissionsLoading(false);
       } catch (error) {
         console.log("erro when try to fetch codeforces submissions");
       }
@@ -100,7 +111,7 @@ const Stats = () => {
 
     const getUvaData = async () => {
       try {
-        setIsLoading(true);
+        setIsSubmissionsLoading(true);
         const response = await uvaApi.get(
           `/submissions?handle=${uvaHandle}&page=${page}&count=${rowsPerPage}&verdict=${verdict}`
         );
@@ -113,7 +124,7 @@ const Stats = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {res.problemId}
+                {res.title}
               </a>
             ),
             verdict: (
@@ -124,7 +135,7 @@ const Stats = () => {
           }))
         );
         setTotalPages(response.data.totalPages);
-        setIsLoading(false);
+        setIsSubmissionsLoading(false);
       } catch (error) {
         console.log("erro when try to fetch uva submissions");
       }
@@ -132,7 +143,7 @@ const Stats = () => {
 
     const getAtcoderData = async () => {
       try {
-        setIsLoading(true);
+        setIsSubmissionsLoading(true);
         const response = await atcoderApi.get(
           `/submissions?handle=${atcoderHandle}&page=${page}&count=${rowsPerPage}&verdict=${verdict}`
         );
@@ -164,7 +175,7 @@ const Stats = () => {
           }))
         );
         setTotalPages(response.data.totalPages);
-        setIsLoading(false);
+        setIsSubmissionsLoading(false);
       } catch (error) {
         console.log("erro when try to fetch atcoder submissions");
       }
@@ -172,7 +183,7 @@ const Stats = () => {
 
     const getSpojData = async () => {
       try {
-        setIsLoading(true);
+        setIsSubmissionsLoading(true);
         const response = await spojApi.get(
           `/submissions?handle=${spojHandle}&page=${page}&count=${rowsPerPage}&verdict=${verdict}`
         );
@@ -204,7 +215,7 @@ const Stats = () => {
           }))
         );
         setTotalPages(response.data.totalPages);
-        setIsLoading(false);
+        setIsSubmissionsLoading(false);
       } catch (error) {
         console.log("erro when try to fetch spoj submissions");
       }
@@ -212,7 +223,7 @@ const Stats = () => {
 
     const getCodechefData = async () => {
       try {
-        setIsLoading(true);
+        setIsSubmissionsLoading(true);
         const response = await codechefApi.get(
           `/submissions?handle=${codechefHandle}&page=${page}&count=${rowsPerPage}&verdict=${verdict}`
         );
@@ -244,42 +255,17 @@ const Stats = () => {
           }))
         );
         setTotalPages(response.data.totalPages);
-        setIsLoading(false);
+        setIsSubmissionsLoading(false);
       } catch (error) {
         console.log("erro when try to fetch codechef submissions");
       }
     };
-
-    const fixOnlineJudge = async () => {
-      await setOnlineJudge(
-        !!codeforcesHandle
-          ? "Codeforces"
-          : !!uvaHandle
-          ? "Uva"
-          : !!atcoderHandle
-          ? "Atcoder"
-          : !!spojHandle
-          ? "Spoj"
-          : !!codechefHandle
-          ? "Codechef"
-          : ""
-      );
-    };
-
-    if (
-      !onlineJudge &&
-      (!!codeforcesHandle ||
-        !!atcoderHandle ||
-        !!uvaHandle ||
-        !!spojHandle ||
-        !!codechefHandle)
-    )
-      fixOnlineJudge();
-    if (onlineJudge === "Codeforces" && !!codeforcesHandle) getCodeforcesData();
-    if (onlineJudge === "Uva" && !!uvaHandle) getUvaData();
-    if (onlineJudge === "Atcoder" && !!atcoderHandle) getAtcoderData();
-    if (onlineJudge === "Spoj" && !!spojHandle) getSpojData();
-    if (onlineJudge === "Codechef" && !!codechefHandle) getCodechefData();
+    if (onlineJudge === "Codeforces" && shouldGetSubmissions)
+      getCodeforcesData();
+    if (onlineJudge === "Uva" && shouldGetSubmissions) getUvaData();
+    if (onlineJudge === "Atcoder" && shouldGetSubmissions) getAtcoderData();
+    if (onlineJudge === "Spoj" && shouldGetSubmissions) getSpojData();
+    if (onlineJudge === "Codechef" && shouldGetSubmissions) getCodechefData();
   }, [
     page,
     verdict,
@@ -289,19 +275,12 @@ const Stats = () => {
     atcoderHandle,
     spojHandle,
     codechefHandle,
+    shouldGetSubmissions,
   ]);
 
   useEffect(() => {
     setPage(1);
-  }, [
-    codeforcesHandle,
-    uvaHandle,
-    atcoderHandle,
-    spojHandle,
-    codechefHandle,
-    onlineJudge,
-    verdict,
-  ]);
+  }, [onlineJudge]);
 
   const onPageChange = (event, page) => {
     setPage(page);
@@ -317,6 +296,227 @@ const Stats = () => {
     return "Tryed";
   };
 
+  const getRandomColor = () => {
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+    return `rgb(${r}, ${g}, ${b})`;
+  };
+
+  useEffect(() => {
+    const getCodeforcesUserStats = async () => {
+      try {
+        const response = await codeforcesApi.get(
+          `/userStats?handle=${codeforcesHandle}`
+        );
+        setCodeforcesUserStats([
+          {
+            labels: ["AC Count", "WA Count", "Others Verdicts Count"],
+            datasets: [
+              {
+                data: [
+                  response.data.result[0].acCount,
+                  response.data.result[0].waCount,
+                  response.data.result[0].othersVerdictCount,
+                ],
+                backgroundColor: ["#33ae81", "#dc5b57", "#dd915f"],
+                hoverBackgroundColor: ["#33ae81", "#dc5b57", "#dd915f"],
+              },
+            ],
+          },
+          {
+            labels: Object.keys(response.data.result[0].tagsCount).map(
+              (tag) => tag
+            ),
+            datasets: [
+              {
+                data: Object.keys(response.data.result[0].tagsCount).map(
+                  (tag) => response.data.result[0].tagsCount[tag]
+                ),
+                backgroundColor: Object.keys(
+                  response.data.result[0].tagsCount
+                ).map((tag) => getRandomColor()),
+                hoverBackgroundColor: Object.keys(
+                  response.data.result[0].tagsCount
+                ).map((tag) => getRandomColor()),
+              },
+            ],
+          },
+        ]);
+      } catch (error) {
+        console.log("erro when try to fetch codeforces user stats");
+      }
+    };
+
+    const getAtcoderUserStats = async () => {
+      try {
+        const response = await atcoderApi.get(
+          `/userStats?handle=${atcoderHandle}`
+        );
+        setAtcoderUserStats([
+          {
+            labels: ["AC Count", "WA Count", "Others Verdicts Count"],
+            datasets: [
+              {
+                data: [
+                  response.data.result[0].acCount,
+                  response.data.result[0].waCount,
+                  response.data.result[0].othersVerdictCount,
+                ],
+                backgroundColor: ["#33ae81", "#dc5b57", "#dd915f"],
+                hoverBackgroundColor: ["#33ae81", "#dc5b57", "#dd915f"],
+              },
+            ],
+          },
+          {
+            labels: Object.keys(response.data.result[0].contestsIndexCount).map(
+              (tag) => tag
+            ),
+            datasets: [
+              {
+                data: Object.keys(
+                  response.data.result[0].contestsIndexCount
+                ).map((tag) => response.data.result[0].contestsIndexCount[tag]),
+                backgroundColor: Object.keys(
+                  response.data.result[0].contestsIndexCount
+                ).map((tag) => getRandomColor()),
+                hoverBackgroundColor: Object.keys(
+                  response.data.result[0].contestsIndexCount
+                ).map((tag) => getRandomColor()),
+              },
+            ],
+          },
+        ]);
+      } catch (error) {
+        console.log("erro when try to fetch atcoder user stats");
+      }
+    };
+
+    const getUvaUserStats = async () => {
+      try {
+        const response = await uvaApi.get(`/userStats?handle=${uvaHandle}`);
+        setUvaUserStats([
+          {
+            labels: ["AC Count", "WA Count", "Others Verdicts Count"],
+            datasets: [
+              {
+                data: [
+                  response.data.result[0].acCount,
+                  response.data.result[0].waCount,
+                  response.data.result[0].othersVerdictCount,
+                ],
+                backgroundColor: ["#33ae81", "#dc5b57", "#dd915f"],
+                hoverBackgroundColor: ["#33ae81", "#dc5b57", "#dd915f"],
+              },
+            ],
+          },
+        ]);
+      } catch (error) {
+        console.log("erro when try to fetch uva user stats");
+      }
+    };
+
+    const getSpojUserStats = async () => {
+      try {
+        const response = await spojApi.get(`/userStats?handle=${spojHandle}`);
+        setSpojUserStats([
+          {
+            labels: ["AC Count", "WA Count", "Others Verdicts Count"],
+            datasets: [
+              {
+                data: [
+                  response.data.result[0].acCount,
+                  response.data.result[0].waCount,
+                  response.data.result[0].othersVerdictCount,
+                ],
+                backgroundColor: ["#33ae81", "#dc5b57", "#dd915f"],
+                hoverBackgroundColor: ["#33ae81", "#dc5b57", "#dd915f"],
+              },
+            ],
+          },
+          {
+            labels: Object.keys(response.data.result[0].tagsCount).map(
+              (tag) => tag
+            ),
+            datasets: [
+              {
+                data: Object.keys(response.data.result[0].tagsCount).map(
+                  (tag) => response.data.result[0].tagsCount[tag]
+                ),
+                backgroundColor: Object.keys(
+                  response.data.result[0].tagsCount
+                ).map((tag) => getRandomColor()),
+                hoverBackgroundColor: Object.keys(
+                  response.data.result[0].tagsCount
+                ).map((tag) => getRandomColor()),
+              },
+            ],
+          },
+        ]);
+      } catch (error) {
+        console.log("erro when try to fetch spoj user stats");
+      }
+    };
+
+    const getCodechefUserStats = async () => {
+      try {
+        const response = await codechefApi.get(
+          `/userStats?handle=${codechefHandle}`
+        );
+        setCodechefUserStats([
+          {
+            labels: ["AC Count", "WA Count", "Others Verdicts Count"],
+            datasets: [
+              {
+                data: [
+                  response.data.result[0].acCount,
+                  response.data.result[0].waCount,
+                  response.data.result[0].othersVerdictCount,
+                ],
+                backgroundColor: ["#33ae81", "#dc5b57", "#dd915f"],
+                hoverBackgroundColor: ["#33ae81", "#dc5b57", "#dd915f"],
+              },
+            ],
+          },
+          {
+            labels: Object.keys(response.data.result[0].tagsCount).map(
+              (tag) => tag
+            ),
+            datasets: [
+              {
+                data: Object.keys(response.data.result[0].tagsCount).map(
+                  (tag) => response.data.result[0].tagsCount[tag]
+                ),
+                backgroundColor: Object.keys(
+                  response.data.result[0].tagsCount
+                ).map((tag) => getRandomColor()),
+                hoverBackgroundColor: Object.keys(
+                  response.data.result[0].tagsCount
+                ).map((tag) => getRandomColor()),
+              },
+            ],
+          },
+        ]);
+      } catch (error) {
+        console.log("erro when try to fetch codechef user stats");
+      }
+    };
+
+    const getOnlineJudgeUserStats = async () => {
+      setIsLoading(true);
+
+      if (!!codeforcesHandle) await getCodeforcesUserStats();
+      if (!!atcoderHandle) await getAtcoderUserStats();
+      if (!!uvaHandle) await getUvaUserStats();
+      if (!!spojHandle) await getSpojUserStats();
+      if (!!codechefHandle) await getCodechefUserStats();
+
+      setIsLoading(false);
+    };
+
+    getOnlineJudgeUserStats();
+  }, [codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle]);
+
   return (
     <>
       {!codeforcesHandle &&
@@ -327,30 +527,178 @@ const Stats = () => {
         <Redirect to="/" />
       ) : (
         <div className={classes.pageContent}>
-          <Paper className={classes.tablePaper}>
-            {isLoading ? (
+          {isLoading ? (
+            <div className={classes.spinnerDiv}>
               <Spinner />
-            ) : (
-              <>
-                <Filter
-                  verdict={verdict}
-                  onlineJudge={onlineJudge}
-                  setVerdict={setVerdict}
-                  setOnlineJudge={setOnlineJudge}
-                />
-                <Table columns={tableColumns} rows={submissions} />
-                <Pagination
-                  size="small"
-                  siblingCount={2}
-                  boundaryCount={0}
-                  count={totalPages}
-                  page={page}
-                  onChange={onPageChange}
-                  style={{ marginTop: "16px", marginBottom: "16px" }}
-                />
-              </>
-            )}
-          </Paper>
+            </div>
+          ) : (
+            <>
+              {codeforcesUserStats.length > 0 && (
+                <>
+                  <h1>Codeforces Stats: </h1>
+                  <div className={classes.chartField}>
+                    <Chart
+                      data={codeforcesUserStats[0]}
+                      onClick={(event, elements) => {
+                        if (elements.length > 0) {
+                          setOnlineJudge("Codeforces");
+                          const selectedIndex = elements[0].index;
+                          setVerdict(
+                            selectedIndex === 0 ? "Accepted" : "Wrong Answer"
+                          );
+                          setShouldGetSubmissions(selectedIndex <= 1);
+                          setShouldShowModal(selectedIndex <= 1);
+                        }
+                      }}
+                    />
+                    <Chart
+                      data={codeforcesUserStats[1]}
+                      onClick={(event, elements) => {
+                        if (elements.length > 0) {
+                          const selectedIndex = elements[0].index;
+                          console.log("Dado selecionado:", selectedIndex);
+                        }
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+              {atcoderUserStats.length > 0 && (
+                <>
+                  <h1>Atcoder Stats: </h1>
+                  <div className={classes.chartField}>
+                    <Chart
+                      data={atcoderUserStats[0]}
+                      onClick={(event, elements) => {
+                        if (elements.length > 0) {
+                          setOnlineJudge("Atcoder");
+                          const selectedIndex = elements[0].index;
+                          setVerdict(
+                            selectedIndex === 0 ? "Accepted" : "Wrong Answer"
+                          );
+                          setShouldGetSubmissions(selectedIndex <= 1);
+                          setShouldShowModal(selectedIndex <= 1);
+                        }
+                      }}
+                    />
+                    <Chart
+                      data={atcoderUserStats[1]}
+                      onClick={(event, elements) => {
+                        if (elements.length > 0) {
+                          const selectedIndex = elements[0].index;
+                          console.log("Dado selecionado:", selectedIndex);
+                        }
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+              {uvaUserStats.length > 0 && (
+                <>
+                  <h1>Online Judge Stats: </h1>
+                  <div className={classes.chartField}>
+                    <Chart
+                      data={uvaUserStats[0]}
+                      onClick={(event, elements) => {
+                        if (elements.length > 0) {
+                          setOnlineJudge("Uva");
+                          const selectedIndex = elements[0].index;
+                          setVerdict(
+                            selectedIndex === 0 ? "Accepted" : "Wrong Answer"
+                          );
+                          setShouldGetSubmissions(selectedIndex <= 1);
+                          setShouldShowModal(selectedIndex <= 1);
+                        }
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+              {spojUserStats.length > 0 && (
+                <>
+                  <h1>SPOJ Stats: </h1>
+                  <div className={classes.chartField}>
+                    <Chart
+                      data={spojUserStats[0]}
+                      onClick={(event, elements) => {
+                        if (elements.length > 0) {
+                          setOnlineJudge("Spoj");
+                          const selectedIndex = elements[0].index;
+                          setVerdict(
+                            selectedIndex === 0 ? "Accepted" : "Wrong Answer"
+                          );
+                          setShouldGetSubmissions(selectedIndex <= 1);
+                          setShouldShowModal(selectedIndex <= 1);
+                        }
+                      }}
+                    />
+                    <Chart
+                      data={spojUserStats[1]}
+                      onClick={(event, elements) => {
+                        if (elements.length > 0) {
+                          const selectedIndex = elements[0].index;
+                          console.log("Dado selecionado:", selectedIndex);
+                        }
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+              {codechefUserStats.length > 0 && (
+                <>
+                  <h1>Codechef Stats: </h1>
+                  <div
+                    className={classes.chartField}
+                    style={{ marginBottom: "16px" }}
+                  >
+                    <Chart
+                      data={codechefUserStats[0]}
+                      onClick={(event, elements) => {
+                        if (elements.length > 0) {
+                          setOnlineJudge("Codechef");
+                          const selectedIndex = elements[0].index;
+                          setVerdict(
+                            selectedIndex === 0 ? "Accepted" : "Wrong Answer"
+                          );
+                          setShouldGetSubmissions(selectedIndex <= 1);
+                          setShouldShowModal(selectedIndex <= 1);
+                        }
+                      }}
+                    />
+                    <Chart
+                      data={codechefUserStats[1]}
+                      onClick={(event, elements) => {
+                        if (elements.length > 0) {
+                          const selectedIndex = elements[0].index;
+                          console.log("Dado selecionado:", selectedIndex);
+                        }
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+              {shouldShowModal && (
+                <Modal open={showModal} onClose={hideModal}>
+                  {isSubmissionsLoading ? (
+                    <Spinner />
+                  ) : (
+                    <>
+                      <Table columns={tableColumns} rows={submissions} />
+                      <Pagination
+                        size="small"
+                        siblingCount={2}
+                        boundaryCount={0}
+                        count={totalPages}
+                        page={page}
+                        onChange={onPageChange}
+                        style={{ marginTop: "16px", marginBottom: "16px" }}
+                      />
+                    </>
+                  )}
+                </Modal>
+              )}
+            </>
+          )}
         </div>
       )}
     </>

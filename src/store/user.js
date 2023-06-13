@@ -1,31 +1,39 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialUserState = {
-  codeforcesHandle: localStorage.getItem("codeforcesHandle") || "",
-  atcoderHandle: localStorage.getItem("atcoderHandle") || "",
-  uvaHandle: localStorage.getItem("uvaHandle") || "",
-  spojHandle: localStorage.getItem("spojHandle") || "",
-  codechefHandle: localStorage.getItem("codechefHandle") || "",
+  profilePicURI: localStorage.getItem("profilePicURI") || "",
+  userName: localStorage.getItem("userName") || "",
+  codeforcesRanking: localStorage.getItem("codeforcesRanking") || "0",
+  atcoderRanking: localStorage.getItem("atcoderRanking") || "0",
+  codechefRanking: localStorage.getItem("codechefRanking") || "0",
+  spojRanking: localStorage.getItem("spojRanking") || "0",
+  uvaAvgDacu: localStorage.getItem("uvaAvgDacu") || "0",
 };
 
 const userSlice = createSlice({
-  name: "userHandles",
+  name: "userInfos",
   initialState: initialUserState,
   reducers: {
-    setCodeforcesHandle(state, action) {
-      state.codeforcesHandle = action.payload;
+    setProfilePicURI(state, action) {
+      state.profilePicURI = action.payload;
     },
-    setAtcoderHandle(state, action) {
-      state.atcoderHandle = action.payload;
+    setUserName(state, action) {
+      state.userName = action.payload;
     },
-    setUvaHandle(state, action) {
-      state.uvaHandle = action.payload;
+    setCodeforcesRanking(state, action) {
+      state.codeforcesRanking = action.payload;
     },
-    setSpojHandle(state, action) {
-      state.spojHandle = action.payload;
+    setAtcoderRanking(state, action) {
+      state.atcoderRanking = action.payload;
     },
-    setCodechefHandle(state, action) {
-      state.codechefHandle = action.payload;
+    setCodechefRanking(state, action) {
+      state.codechefRanking = action.payload;
+    },
+    setSpojRanking(state, action) {
+      state.spojRanking = action.payload;
+    },
+    setUvaAvgDacu(state, action) {
+      state.uvaAvgDacu = action.payload;
     },
   },
 });

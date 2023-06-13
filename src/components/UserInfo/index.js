@@ -1,5 +1,6 @@
 import { useDispatch } from "react-redux";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { handleActions } from "../../store/handles";
 import { userActions } from "../../store/user";
 
 import Modal from "../Modal";
@@ -15,6 +16,8 @@ import { codechefApi } from "../../service/codechefApi";
 import classes from "./userInfo.module.css";
 
 const UserInfo = (props) => {
+  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+
   const [isCodeforcesUserValid, setIsCodeforcesUserValid] = useState(true);
   const [isUvaUserValid, setIsUvaUserValid] = useState(true);
   const [isAtcoderUserValid, setIsAtcoderUserValid] = useState(true);
@@ -41,69 +44,162 @@ const UserInfo = (props) => {
 
   const dispatch = useDispatch();
 
-  const checkOjHandle = async (ojApi, handle) => {
-    if (handle === "") {
-      return true;
-    }
-    const res = await ojApi.get(`/userInfo?handle=${handle}`);
-    return res.data.status !== "FAILED";
-  };
+  useEffect(() => {
+    const checkCodeforcesUser = async () => {
+      try {
+        const res = await codeforcesApi.get(
+          `/userInfo?handle=${codeforcesHandle}`
+        );
+        if (res.data.status === "FAILED") {
+          setIsCodeforcesUserValid(false);
+        } else {
+          localStorage.setItem("codeforcesHandle", codeforcesHandle);
+          dispatch(handleActions.setCodeforcesHandle(codeforcesHandle));
 
-  const handleSubmit = async () => {
+          localStorage.setItem("codeforcesRanking", res.data.result[0].rating);
+          dispatch(userActions.setCodeforcesRanking(res.data.result[0].rating));
+
+          localStorage.setItem(
+            "userName",
+            `${res.data.result[0].firstName} ${res.data.result[0].lastName}` ||
+              ""
+          );
+          dispatch(
+            userActions.setUserName(
+              `${res.data.result[0].firstName} ${res.data.result[0].lastName}` ||
+                ""
+            )
+          );
+
+          localStorage.setItem("profilePicURI", res.data.result[0].avatar);
+          dispatch(userActions.setProfilePicURI(res.data.result[0].avatar));
+        }
+      } catch (error) {
+        console.log("erro when try to fetch codeforces user info");
+      }
+    };
+
+    const checkAtcoderUser = async () => {
+      try {
+        const res = await atcoderApi.get(`/userInfo?handle=${atcoderHandle}`);
+        if (res.data.status === "FAILED") {
+          setIsAtcoderUserValid(false);
+        } else {
+          localStorage.setItem("atcoderHandle", atcoderHandle);
+          dispatch(handleActions.setAtcoderHandle(atcoderHandle));
+
+          localStorage.setItem("atcoderRanking", res.data.result[0].rating);
+          dispatch(userActions.setAtcoderRanking(res.data.result[0].rating));
+
+          localStorage.setItem("profilePicURI", res.data.result[0].avatarURL);
+          dispatch(userActions.setProfilePicURI(res.data.result[0].avatarURL));
+        }
+      } catch (error) {
+        console.log("erro when try to fetch atcoder user info");
+      }
+    };
+
+    const checkUvaUser = async () => {
+      try {
+        const res = await uvaApi.get(`/userInfo?handle=${uvaHandle}`);
+        if (res.data.status === "FAILED") {
+          setIsUvaUserValid(false);
+        } else {
+          localStorage.setItem("uvaHandle", uvaHandle);
+          dispatch(handleActions.setUvaHandle(uvaHandle));
+
+          localStorage.setItem("uvaAvgDacu", res.data.result[0].avgDacu);
+          dispatch(userActions.setUvaAvgDacu(res.data.result[0].avgDacu));
+
+          localStorage.setItem("userName", res.data.result[0].username);
+          dispatch(userActions.setUserName(res.data.result[0].username));
+
+          localStorage.setItem("profilePicURI", res.data.result[0].avatar);
+          dispatch(userActions.setProfilePicURI(res.data.result[0].avatar));
+        }
+      } catch (error) {
+        console.log("erro when try to fetch uva user info");
+      }
+    };
+
+    const checkSpojUser = async () => {
+      try {
+        const res = await spojApi.get(`/userInfo?handle=${spojHandle}`);
+        if (res.data.status === "FAILED") {
+          setIsSpojUserValid(false);
+        } else {
+          localStorage.setItem("spojHandle", spojHandle);
+          dispatch(handleActions.setSpojHandle(spojHandle));
+
+          localStorage.setItem("spojRanking", res.data.result[0].rank);
+          dispatch(userActions.setSpojRanking(res.data.result[0].rank));
+
+          localStorage.setItem("userName", res.data.result[0].userName);
+          dispatch(userActions.setUserName(res.data.result[0].userName));
+
+          localStorage.setItem("profilePicURI", res.data.result[0].avatarURL);
+          dispatch(userActions.setProfilePicURI(res.data.result[0].avatarURL));
+        }
+      } catch (error) {
+        console.log("erro when try to fetch spoj user info");
+      }
+    };
+
+    const checkCodechefUser = async () => {
+      try {
+        const res = await codechefApi.get(`/userInfo?handle=${codechefHandle}`);
+        if (res.data.status === "FAILED") {
+          setIsCodechefUserValid(false);
+        } else {
+          localStorage.setItem("codechefHandle", codechefHandle);
+          dispatch(handleActions.setCodechefHandle(codechefHandle));
+
+          localStorage.setItem("codechefRanking", res.data.result[0].rating);
+          dispatch(userActions.setCodechefRanking(res.data.result[0].rating));
+
+          localStorage.setItem("userName", res.data.result[0].username);
+          dispatch(userActions.setUserName(res.data.result[0].username));
+        }
+      } catch (error) {
+        console.log("erro when try to fetch codechef user info");
+      }
+    };
+
     setIsLoading(true);
 
-    const codeforcesUserExists = await checkOjHandle(
-      codeforcesApi,
-      codeforcesHandle
-    );
-    const uvaUserExists = await checkOjHandle(uvaApi, uvaHandle);
-    const atcoderUserExists = await checkOjHandle(atcoderApi, atcoderHandle);
-    const spojUserExists = await checkOjHandle(spojApi, spojHandle);
-    const codechefUserExists = await checkOjHandle(codechefApi, codechefHandle);
+    if (!!codeforcesHandle && isFormSubmitted) checkCodeforcesUser();
+    if (!!atcoderHandle && isFormSubmitted) checkAtcoderUser();
+    if (!!uvaHandle && isFormSubmitted) checkUvaUser();
+    if (!!spojHandle && isFormSubmitted) checkSpojUser();
+    if (!!codechefHandle && isFormSubmitted) checkCodechefUser();
 
-    setIsCodeforcesUserValid(codeforcesUserExists);
-    setIsUvaUserValid(uvaUserExists);
-    setIsAtcoderUserValid(atcoderUserExists);
-    setIsSpojUserValid(spojUserExists);
-    setIsCodechefUserValid(codechefUserExists);
-
-    if (codeforcesUserExists) {
-      localStorage.setItem("codeforcesHandle", codeforcesHandle);
-      dispatch(userActions.setCodeforcesHandle(codeforcesHandle));
-    }
-
-    if (uvaUserExists) {
-      localStorage.setItem("uvaHandle", uvaHandle);
-      dispatch(userActions.setUvaHandle(uvaHandle));
-    }
-
-    if (atcoderUserExists) {
-      localStorage.setItem("atcoderHandle", atcoderHandle);
-      dispatch(userActions.setAtcoderHandle(atcoderHandle));
-    }
-
-    if (spojUserExists) {
-      localStorage.setItem("spojHandle", spojHandle);
-      dispatch(userActions.setSpojHandle(spojHandle));
-    }
-
-    if (codechefUserExists) {
-      localStorage.setItem("codechefHandle", codechefHandle);
-      dispatch(userActions.setCodechefHandle(codechefHandle));
-    }
+    setIsLoading(false);
 
     if (
-      codeforcesUserExists &&
-      uvaUserExists &&
-      atcoderUserExists &&
-      spojUserExists &&
-      codechefUserExists
+      isCodeforcesUserValid &&
+      isAtcoderUserValid &&
+      isUvaUserValid &&
+      isSpojUserValid &&
+      isCodechefUserValid &&
+      isFormSubmitted
     ) {
       props.onClose();
     }
-
-    setIsLoading(false);
-  };
+  }, [
+    atcoderHandle,
+    codechefHandle,
+    codeforcesHandle,
+    dispatch,
+    isAtcoderUserValid,
+    isCodechefUserValid,
+    isCodeforcesUserValid,
+    isFormSubmitted,
+    isSpojUserValid,
+    isUvaUserValid,
+    props,
+    spojHandle,
+    uvaHandle,
+  ]);
 
   return (
     <Modal onClose={props.onClose}>
@@ -153,7 +249,7 @@ const UserInfo = (props) => {
           loading={isLoading}
           variant="outlined"
           className={classes.FormButton}
-          onClick={handleSubmit}
+          onClick={() => setIsFormSubmitted(true)}
         >
           Save
         </LoadingButton>
