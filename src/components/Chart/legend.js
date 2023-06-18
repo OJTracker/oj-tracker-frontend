@@ -5,18 +5,10 @@ import IconButton from "@mui/material/IconButton";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 
-import classes from "./chart.module.css";
-
 const ChartLegend = ({ data, onLegendHover }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [hoverIndex, setHoverIndex] = useState(null);
 
   const itemsPerPage = 10;
-
-  const handleItemClick = (index) => {
-    const pageIndex = Math.ceil((index + 1) / itemsPerPage);
-    setCurrentPage(pageIndex);
-  };
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -26,20 +18,8 @@ const ChartLegend = ({ data, onLegendHover }) => {
 
   const showPaginationButton = totalPages > 1;
 
-  const handleLegendHover = (index) => {
-    setHoverIndex(index);
-    onLegendHover(index);
-  };
-
   const legendItems = visibleItems.map((item, index) => (
-    <li
-      key={`${item} - ${startIndex + index}`}
-      onClick={() => handleItemClick(startIndex + index)}
-      onMouseEnter={() => handleLegendHover(index)}
-      onMouseLeave={() => handleLegendHover(null)}
-      className={hoverIndex === index ? classes.active : ""}
-      style={{ cursor: "pointer" }}
-    >
+    <li key={`${item} - ${startIndex + index}`}>
       <span
         style={{
           display: "inline-block",

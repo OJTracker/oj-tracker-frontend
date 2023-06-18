@@ -129,7 +129,7 @@ const RecommendationFilter = (props) => {
           (localOnlineJudge === "Spoj" ||
             localOnlineJudge === "Codeforces" ||
             localOnlineJudge === "Codechef")) ||
-        (localOnlineJudge === "Uva" &&
+        (localOnlineJudge === "Online Judge" &&
           localRecommendationMethod === "byCPBook" &&
           !!localCpBookEdition)
       );
@@ -270,7 +270,7 @@ const RecommendationFilter = (props) => {
                   <MenuItem value={"Codeforces"}>Codeforces</MenuItem>
                 )}
                 {!!uvaHandle && (
-                  <MenuItem value={"Uva"}>Uva Online Judge</MenuItem>
+                  <MenuItem value={"Online Judge"}>Online Judge</MenuItem>
                 )}
                 {!!atcoderHandle && (
                   <MenuItem value={"Atcoder"}>Atcoder</MenuItem>
@@ -295,7 +295,7 @@ const RecommendationFilter = (props) => {
                 </MenuItem>
                 <MenuItem value={"byUserRating"}>By User Rating</MenuItem>
                 <MenuItem value={"byProblemRating"}>By Problem Rating</MenuItem>
-                {localOnlineJudge === "Uva" && (
+                {localOnlineJudge === "Online Judge" && (
                   <MenuItem value={"byCPBook"}>
                     By Competitive Programming Book
                   </MenuItem>

@@ -131,13 +131,13 @@ const Stats = () => {
               <p className={classes[parse(res.verdict)]}>{res.verdict}</p>
             ),
             language: <p>{res.language}</p>,
-            onlineJudge: <p>UVA OJ</p>,
+            onlineJudge: <p>Online Judge OJ</p>,
           }))
         );
         setTotalPages(response.data.totalPages);
         setIsSubmissionsLoading(false);
       } catch (error) {
-        console.log("erro when try to fetch uva submissions");
+        console.log("erro when try to fetch Online Judge submissions");
       }
     };
 
@@ -262,7 +262,7 @@ const Stats = () => {
     };
     if (onlineJudge === "Codeforces" && shouldGetSubmissions)
       getCodeforcesData();
-    if (onlineJudge === "Uva" && shouldGetSubmissions) getUvaData();
+    if (onlineJudge === "Online Judge" && shouldGetSubmissions) getUvaData();
     if (onlineJudge === "Atcoder" && shouldGetSubmissions) getAtcoderData();
     if (onlineJudge === "Spoj" && shouldGetSubmissions) getSpojData();
     if (onlineJudge === "Codechef" && shouldGetSubmissions) getCodechefData();
@@ -412,7 +412,7 @@ const Stats = () => {
           },
         ]);
       } catch (error) {
-        console.log("erro when try to fetch uva user stats");
+        console.log("erro when try to fetch Online Judge user stats");
       }
     };
 
@@ -601,7 +601,7 @@ const Stats = () => {
                       data={uvaUserStats[0]}
                       onClick={(event, elements) => {
                         if (elements.length > 0) {
-                          setOnlineJudge("Uva");
+                          setOnlineJudge("Online Judge");
                           const selectedIndex = elements[0].index;
                           setVerdict(
                             selectedIndex === 0 ? "Accepted" : "Wrong Answer"

@@ -93,7 +93,7 @@ const Filter = (props) => {
                   <MenuItem value={"Codeforces"}>Codeforces</MenuItem>
                 )}
                 {!!uvaHandle && (
-                  <MenuItem value={"Uva"}>Uva Online Judge</MenuItem>
+                  <MenuItem value={"Online Judge"}>Online Judge</MenuItem>
                 )}
                 {!!atcoderHandle && (
                   <MenuItem value={"Atcoder"}>Atcoder</MenuItem>

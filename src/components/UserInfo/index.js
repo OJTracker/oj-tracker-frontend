@@ -59,17 +59,12 @@ const UserInfo = (props) => {
           localStorage.setItem("codeforcesRanking", res.data.result[0].rating);
           dispatch(userActions.setCodeforcesRanking(res.data.result[0].rating));
 
-          localStorage.setItem(
-            "userName",
-            `${res.data.result[0].firstName} ${res.data.result[0].lastName}` ||
-              ""
-          );
-          dispatch(
-            userActions.setUserName(
-              `${res.data.result[0].firstName} ${res.data.result[0].lastName}` ||
-                ""
-            )
-          );
+          let localUserName = `${res.data.result[0].firstName} ${res.data.result[0].lastName}`;
+          localUserName =
+            localUserName === `undefined undefined` ? "" : localUserName;
+
+          localStorage.setItem("userName", localUserName);
+          dispatch(userActions.setUserName(localUserName));
 
           localStorage.setItem("profilePicURI", res.data.result[0].avatar);
           dispatch(userActions.setProfilePicURI(res.data.result[0].avatar));
@@ -111,8 +106,8 @@ const UserInfo = (props) => {
           localStorage.setItem("uvaAvgDacu", res.data.result[0].avgDacu);
           dispatch(userActions.setUvaAvgDacu(res.data.result[0].avgDacu));
 
-          localStorage.setItem("userName", res.data.result[0].username);
-          dispatch(userActions.setUserName(res.data.result[0].username));
+          localStorage.setItem("userName", res.data.result[0].username || "");
+          dispatch(userActions.setUserName(res.data.result[0].username || ""));
 
           localStorage.setItem("profilePicURI", res.data.result[0].avatar);
           dispatch(userActions.setProfilePicURI(res.data.result[0].avatar));
@@ -134,8 +129,8 @@ const UserInfo = (props) => {
           localStorage.setItem("spojRanking", res.data.result[0].rank);
           dispatch(userActions.setSpojRanking(res.data.result[0].rank));
 
-          localStorage.setItem("userName", res.data.result[0].userName);
-          dispatch(userActions.setUserName(res.data.result[0].userName));
+          localStorage.setItem("userName", res.data.result[0].userName || "");
+          dispatch(userActions.setUserName(res.data.result[0].userName || ""));
 
           localStorage.setItem("profilePicURI", res.data.result[0].avatarURL);
           dispatch(userActions.setProfilePicURI(res.data.result[0].avatarURL));
@@ -157,8 +152,8 @@ const UserInfo = (props) => {
           localStorage.setItem("codechefRanking", res.data.result[0].rating);
           dispatch(userActions.setCodechefRanking(res.data.result[0].rating));
 
-          localStorage.setItem("userName", res.data.result[0].username);
-          dispatch(userActions.setUserName(res.data.result[0].username));
+          localStorage.setItem("userName", res.data.result[0].username || "");
+          dispatch(userActions.setUserName(res.data.result[0].username || ""));
         }
       } catch (error) {
         console.log("erro when try to fetch codechef user info");

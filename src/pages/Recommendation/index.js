@@ -44,7 +44,7 @@ const Recommendation = () => {
     !!codeforcesHandle
       ? "Codeforces"
       : !!uvaHandle
-      ? "Uva"
+      ? "Online Judge"
       : !!atcoderHandle
       ? "Atcoder"
       : !!spojHandle
@@ -210,7 +210,7 @@ const Recommendation = () => {
         !!codeforcesHandle
           ? "Codeforces"
           : !!uvaHandle
-          ? "Uva"
+          ? "Online Judge"
           : !!atcoderHandle
           ? "Atcoder"
           : !!spojHandle
@@ -234,7 +234,7 @@ const Recommendation = () => {
 
     if (onlineJudge === "Codeforces" && !!codeforcesHandle)
       getCodeforcesRecommendation();
-    if (onlineJudge === "Uva" && !!uvaHandle) getUvaRecommendation();
+    if (onlineJudge === "Online Judge" && !!uvaHandle) getUvaRecommendation();
     if (onlineJudge === "Atcoder" && !!atcoderHandle)
       getAtcoderRecommendation();
     if (onlineJudge === "Spoj" && !!spojHandle) getSPOJRecommendation();
