@@ -3,6 +3,7 @@ import {
   BrowserRouter as Router,
   Route,
 } from "react-router-dom";
+
 import Recommendation from "./pages/Recommendation";
 import Stats from "./pages/Stats";
 

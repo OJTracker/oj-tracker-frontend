@@ -65,7 +65,6 @@ const App = () => {
         </AppBar>
         <ASide />
         <main className={classes.content}>
-          <div className={classes.toolbar} />
           <Container maxWidth="lg">
             <Grid container spacing={3}>
               <Routes />
