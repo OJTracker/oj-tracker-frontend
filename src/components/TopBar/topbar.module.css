@@ -13,6 +13,10 @@
   .linkDiv {
     display: none !important;
   }
+
+  .menuButton, .buttonUserInfo {
+    margin-right: 0px !important;
+  }
 }
 
 .menu {

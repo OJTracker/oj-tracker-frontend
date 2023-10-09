@@ -1,3 +1,19 @@
+@media (min-width: 545px) {
+  .mob {
+    display: none !important;
+  }
+}
+
+@media (max-width: 545px) {
+  .sit {
+    display: none !important;
+  }
+}
+
+.openBtn {
+  margin-top: 60px !important;
+}
+
 .avatar {
   justify-content: center !important;
 }
