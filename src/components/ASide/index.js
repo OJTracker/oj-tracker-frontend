@@ -88,7 +88,7 @@ const ASide = () => {
         {site()}
       </div>
       <div className={css.mob}>
-        <Button className={css.openBtn} onClick={() => setOpen(true)}>Abrir {String(open)}</Button>
+        <Button variant="outlined" className={css.openBtn} onClick={() => setOpen(true)}>Open User Data</Button>
         <Drawer
           className={classes.drawer}
           anchor="left"
