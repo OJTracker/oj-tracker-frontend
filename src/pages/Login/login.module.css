@@ -1,0 +1,22 @@
+.login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.centered {
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    padding: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+  
+.FormButton {
+    margin: 16px 0 !important;
+}
+
+.FormInput {
+    margin: 8px 0 !important;
+}
