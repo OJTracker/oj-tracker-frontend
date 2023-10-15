@@ -2,16 +2,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-width: 100%;
+  margin: 0;
+  padding: 16px;
 }
 
 .FormInput {
-  width: 80%;
-  margin: 16px !important;
+  width: 100%;
+  margin: 8px 0 !important;
 }
 
 .FormButton {
-  margin: 8px !important;
+  margin: 16px 0 !important;
 }
-
-
-
