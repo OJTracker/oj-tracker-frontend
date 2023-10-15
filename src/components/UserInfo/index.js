@@ -4,7 +4,7 @@ import { handleActions } from "../../store/handles";
 import { userActions } from "../../store/user";
 
 import Modal from "../Modal";
-import { Paper, TextField } from "@material-ui/core";
+import { Paper, TextField, Link } from "@material-ui/core";
 import LoadingButton from "@mui/lab/LoadingButton";
 
 import { codeforcesApi } from "../../service/codeforcesApi";
@@ -15,7 +15,11 @@ import { codechefApi } from "../../service/codechefApi";
 
 import classes from "./userInfo.module.css";
 
+import { useHistory } from 'react-router-dom';
+
 const UserInfo = (props) => {
+  const history = useHistory();
+
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
   const [isCodeforcesUserValid, setIsCodeforcesUserValid] = useState(true);
@@ -248,6 +252,15 @@ const UserInfo = (props) => {
         >
           Save
         </LoadingButton>
+        <Link
+          component="button"
+          className={classes.Link}
+          onClick={() => {
+            history.push('/private');
+          }}
+        >
+          Restricted Area
+        </Link>
       </Paper>
     </Modal>
   );
