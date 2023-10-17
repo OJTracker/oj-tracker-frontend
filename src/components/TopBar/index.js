@@ -35,13 +35,33 @@ export default function TopBar(props) {
           'aria-labelledby': 'menu-button',
         }}
       >
-        <MenuItem component="a" href="/">User's Stats</MenuItem>
-        <MenuItem component="a" href="/recommendation">Recommendation</MenuItem>
+        { !props.private &&
+          <>
+            <MenuItem component="a" href="/">User's Stats</MenuItem>
+            <MenuItem component="a" href="/recommendation">Recommendation</MenuItem>
+            <MenuItem component="a" href="/curated-lists">Curated Lists</MenuItem>
+          </>
+        }
+        { props.private &&
+          <>
+            <MenuItem component="a" href="/private">Curated Lists</MenuItem>
+          </>
+        }
       </Menu>
 
       <div className={classes.linkDiv}>
-        <Link className={classes.linkItem} href="/" underline="none" color="black" style={{margin: "0px 16px"}}>User's Stats</Link>
-        <Link className={classes.linkItem} href="/recommendation" underline="none" color="black">Recommendation</Link>
+        { !props.private &&
+          <>
+            <Link className={classes.linkItem} href="/" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>User's Stats</Link>
+            <Link className={classes.linkItem} href="/recommendation" underline="none" color="black">Recommendation</Link>
+            <Link className={classes.linkItem} href="/curated-lists" underline="none" color="black">Curated Lists</Link>
+          </>
+        }
+        { props.private &&
+          <>
+            <Link className={classes.linkItem} href="/private" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>Curated Lists</Link>
+          </>
+        }
       </div>
 
       <div className={classes.userInfo}>

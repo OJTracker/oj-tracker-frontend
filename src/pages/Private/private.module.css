@@ -1,0 +1,8 @@
+.root {
+    display: "flex",
+}
+
+.content {
+    margin-top: 66px;
+    padding: 33px;
+}

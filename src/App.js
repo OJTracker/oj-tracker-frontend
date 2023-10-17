@@ -22,6 +22,15 @@ const useStyles = makeStyles((theme) => ({
     marginTop: "66px",
     padding: theme.spacing(3),
   },
+  '@media (max-width: 545px)': {
+    root: {
+      flexDirection: 'column'
+    },
+    content: {
+      marginTop: '0px',
+      alignSelf: 'center'
+    }
+  }
 }));
 
 const App = () => {

@@ -56,6 +56,10 @@
   align-items: center;
 }
 
+.linkItem {
+  margin-right: 16px !important;
+}
+
 .linkItem:hover {
   text-decoration: underline;
 }
