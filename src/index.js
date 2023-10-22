@@ -8,18 +8,19 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import './index.css';
 
-import App from "./App";
 import PrivateRoute from "./PrivateRoute";
-import Private from "./pages/Private";
+
+import App from "./App";
 import Login from "./pages/Login";
 
 ReactDOM.render(
   <Provider store={store}>
     <Router>
       <Switch>
-        <Route exact path="/" component={App} />
-        <Route exact path="/recommendation" component={App} />
-        <PrivateRoute exact path="/private" component={Private} />
+        <PrivateRoute exact path="/" component={App} />
+        <PrivateRoute exact path="/stats" component={App} />
+        <PrivateRoute exact path="/recommendation" component={App} />
+        <PrivateRoute exact path="/curated-lists" component={App} />
         <Route exact path="/login" component={Login} />
       </Switch>
     </Router>

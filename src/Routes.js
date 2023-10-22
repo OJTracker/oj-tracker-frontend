@@ -12,8 +12,9 @@ const Routes = () => {
   return (
     <Router>
       <Route path="/" exact component={Stats}/>
+      <Route path="/stats" exact component={Stats}/>
       <Route path="/recommendation" exact component={Recommendation}/>
-      <Route path="/private" exact component={CuratedLists}/>
+      <Route path="/curated-lists" exact component={CuratedLists}/>
     </Router>
   )
 }

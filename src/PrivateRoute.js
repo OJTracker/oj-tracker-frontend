@@ -1,19 +1,32 @@
 import { Route } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 import PropTypes from "prop-types";
 
-import isAuth from "./utils/auth";
+import { isAuth, isSpecialUser } from "./utils/auth";
+
+import { handleActions } from "./store/handles";
+import { userActions } from "./store/user";
 
 const PrivateRoute = ({ component, exact, path }) => {
+    const dispatch = useDispatch();
+
     if (isAuth()) {
+        if (isSpecialUser() && path === "/") {
+            window.location = "/curated-lists";
+            return;
+        }
+
         return (
-            <Route exact={exact} path={path}>
-                {component}
-            </Route>
+            <Route exact={exact} path={path} component={component} />
         );
     }
 
     localStorage.removeItem("tk");
+
+    dispatch(handleActions.clearHandles());
+    dispatch(userActions.clearUserInfo());
+
     window.location = "/login";
 };
 

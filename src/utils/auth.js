@@ -14,4 +14,16 @@ const isAuth = () => {
     }
 }
 
-export default isAuth;
+const isSpecialUser = () => {
+    const token = localStorage.getItem("tk");
+    if (token === null) return false;
+
+    const decodedToken = jwt_decode(token);
+    if (["ADMIN", "COACH"].includes(decodedToken.groups[0])){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+export { isAuth, isSpecialUser };

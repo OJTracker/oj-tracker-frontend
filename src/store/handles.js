@@ -27,6 +27,18 @@ const handleSlice = createSlice({
     setCodechefHandle(state, action) {
       state.codechefHandle = action.payload;
     },
+    clearHandles(state) {
+      state.codeforcesHandle = "";
+      localStorage.removeItem("codeforcesHandle");
+      state.atcoderHandle = "";
+      localStorage.removeItem("atcoderHandle");
+      state.uvaHandle = "";
+      localStorage.removeItem("uvaHandle");
+      state.spojHandle = "";
+      localStorage.removeItem("spojHandle");
+      state.codechefHandle = "";
+      localStorage.removeItem("codechefHandle");
+    },
   },
 });
 

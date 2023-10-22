@@ -35,6 +35,22 @@ const userSlice = createSlice({
     setUvaAvgDacu(state, action) {
       state.uvaAvgDacu = action.payload;
     },
+    clearUserInfo(state) {
+      state.profilePicURI = "";
+      localStorage.removeItem("profilePicURI");
+      state.userName = "";
+      localStorage.removeItem("userName");
+      state.codeforcesRanking = "0";
+      localStorage.removeItem("codeforcesRanking");
+      state.atcoderRanking = "0";
+      localStorage.removeItem("atcoderRanking");
+      state.codechefRanking = "0";
+      localStorage.removeItem("codechefRanking");
+      state.spojRanking = "0";
+      localStorage.removeItem("spojRanking");
+      state.uvaAvgDacu = "0";
+      localStorage.removeItem("uvaAvgDacu");
+    },
   },
 });
 
