@@ -26,4 +26,20 @@ const isSpecialUser = () => {
     }
 }
 
-export { isAuth, isSpecialUser };
+const getUsername = () => {
+    const token = localStorage.getItem("tk");
+    if (token === null) window.location = "/";
+
+    const decodedToken = jwt_decode(token);
+    return decodedToken.upn;
+}
+
+const getUserRole = () => {
+    const token = localStorage.getItem("tk");
+    if (token === null) window.location = "/";
+
+    const decodedToken = jwt_decode(token); 
+    return decodedToken.groups[0];
+}
+
+export { isAuth, isSpecialUser, getUserRole, getUsername };

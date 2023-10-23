@@ -10,6 +10,8 @@ import ASide from "./components/ASide";
 import { makeStyles } from "@material-ui/core/styles";
 import { AppBar, Container, Grid } from "@material-ui/core";
 
+import { isSpecialUser } from "./utils/auth";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -35,11 +37,10 @@ const useStyles = makeStyles((theme) => ({
 
 const App = () => {
   const classes = useStyles();
+
   const [userInfoIsShown, setUserInfoIsShown] = useState(false);
 
-  const codeforcesHandle = useSelector(
-    (state) => state.handles.codeforcesHandle
-  );
+  const codeforcesHandle = useSelector((state) => state.handles.codeforcesHandle);
   const uvaHandle = useSelector((state) => state.handles.uvaHandle);
   const atcoderHandle = useSelector((state) => state.handles.atcoderHandle);
   const spojHandle = useSelector((state) => state.handles.spojHandle);
@@ -65,7 +66,7 @@ const App = () => {
 
   return (
     <>
-      {(userInfoIsShown || usersIsNotSetted()) && (
+      {(userInfoIsShown || usersIsNotSetted()) && !isSpecialUser() && (
         <UserInfo onClose={hideUserInfoHandler} />
       )}
       <div className={classes.root}>

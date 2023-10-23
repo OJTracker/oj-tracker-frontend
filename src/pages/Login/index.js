@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
-import { Card, CardContent, TextField } from '@mui/material';
+import { useDispatch } from "react-redux";
 
+import { Card, CardContent, TextField } from '@mui/material';
 import LoadingButton from "@mui/lab/LoadingButton";
+
+import { handleActions } from "../../store/handles";
+import { userActions } from "../../store/user";
 
 import classes from "./login.module.css";
 
 import { authApi } from "../../service/authApi";
+import { getUsername } from '../../utils/auth';
 
 const Login = () => {
+    const dispatch = useDispatch();
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -21,8 +28,27 @@ const Login = () => {
             const response = await authApi.post('/api/users/login', { username, password });
 
             if (response.status === 200) {
-                localStorage.setItem("tk", response.data);
-                window.location = "/private";
+                localStorage.setItem("tk", response.data.token);
+
+                const username = getUsername();
+                localStorage.setItem("userName", username);
+                dispatch(userActions.setUserName(username));
+
+                const profilePicURI = response.data.profilePicURI;
+                localStorage.setItem("profilePicURI", profilePicURI);
+                dispatch(userActions.setProfilePicURI(profilePicURI));
+
+                const codeforcesHandle = response.data.codeforcesHandle;
+                localStorage.setItem("codeforcesHandle", codeforcesHandle);
+                dispatch(handleActions.setCodeforcesHandle(codeforcesHandle));
+
+                const codeforcesRanking = response.data.codeforcesRanking;
+                localStorage.setItem("codeforcesRanking", codeforcesRanking);
+                dispatch(userActions.setCodeforcesRanking(codeforcesRanking));
+
+                // TO-DO: Adicionar outras plataformas
+
+                window.location = "/";
             } else {
                 alert("Unknown error");
                 setCredentialsError(true);
