@@ -4,7 +4,10 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+
 import generateRandomKey from "../../utils/generateRandomKey";
+
+import classes from "./table.module.css";
 
 const MyTable = (props) => {
   return (
@@ -32,14 +35,21 @@ const MyTable = (props) => {
         <TableBody>
           {props.rows.map((row) => (
             <TableRow
+              onClick={() => { if(row["id"] !== undefined) window.location = `/curated-list/${row["id"]}`; }}
               key={generateRandomKey()}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              className={classes.row}
             >
-              {Object.keys(row).map((r) => (
-                <TableCell key={generateRandomKey()} align="left">
-                  {row[r]}
-                </TableCell>
-              ))}
+              {Object.keys(row).map((r) => {
+                if (r !== "id") {
+                  return (
+                    <TableCell key={generateRandomKey()} align="left">
+                      {row[r]}
+                    </TableCell>
+                  )
+                }
+                return null;
+              })}
             </TableRow>
           ))}
         </TableBody>
