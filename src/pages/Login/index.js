@@ -34,15 +34,15 @@ const Login = () => {
                 localStorage.setItem("userName", username);
                 dispatch(userActions.setUserName(username));
 
-                const profilePicURI = response.data.profilePicURI;
+                const profilePicURI = response.data.profilePicURI ?? "";
                 localStorage.setItem("profilePicURI", profilePicURI);
                 dispatch(userActions.setProfilePicURI(profilePicURI));
 
-                const codeforcesHandle = response.data.codeforcesHandle;
+                const codeforcesHandle = response.data.codeforcesHandle ?? "";
                 localStorage.setItem("codeforcesHandle", codeforcesHandle);
                 dispatch(handleActions.setCodeforcesHandle(codeforcesHandle));
 
-                const codeforcesRanking = response.data.codeforcesRanking;
+                const codeforcesRanking = response.data.codeforcesRanking ?? "";
                 localStorage.setItem("codeforcesRanking", codeforcesRanking);
                 dispatch(userActions.setCodeforcesRanking(codeforcesRanking));
 

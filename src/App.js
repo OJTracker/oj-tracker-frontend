@@ -71,12 +71,12 @@ const App = () => {
       )}
       <div className={classes.root}> 
         <AppBar position="fixed" className={classes.appBar}>
-          <TopBar onShowUserInfo={showUserInfoHandler} />
+          <TopBar onShowUserInfo={showUserInfoHandler} specialUser={isSpecialUser()} />
         </AppBar>
-        <ASide />
+        { !isSpecialUser() && <ASide /> }
         <main className={classes.content}>
           <Container maxWidth="lg">
-            <Grid container spacing={3}>
+            <Grid container style={{"justify-content": "center"}}>
               <Routes />
             </Grid>
           </Container>
