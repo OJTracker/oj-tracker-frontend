@@ -69,7 +69,7 @@ const App = () => {
       {(userInfoIsShown || usersIsNotSetted()) && !isSpecialUser() && (
         <UserInfo onClose={hideUserInfoHandler} />
       )}
-      <div className={classes.root}>
+      <div className={classes.root}> 
         <AppBar position="fixed" className={classes.appBar}>
           <TopBar onShowUserInfo={showUserInfoHandler} />
         </AppBar>

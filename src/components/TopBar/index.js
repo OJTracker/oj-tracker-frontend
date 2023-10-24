@@ -1,12 +1,20 @@
 import React from 'react';
+import { useDispatch } from "react-redux";
 import { AppBar, Link, Menu, MenuItem } from '@mui/material';
 
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import MenuIcon from '@mui/icons-material/Menu';
+import LogoutIcon from '@mui/icons-material/Logout';
+
+import { handleActions } from "../../store/handles";
+import { userActions } from "../../store/user";
 
 import classes from './topbar.module.css';
+import { getUserRole } from '../../utils/auth';
 
 export default function TopBar(props) {
+  const dispatch = useDispatch();
+
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const open = Boolean(anchorEl);
@@ -18,6 +26,15 @@ export default function TopBar(props) {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const logout = () => {
+    localStorage.removeItem("tk");
+
+    dispatch(handleActions.clearHandles());
+    dispatch(userActions.clearUserInfo());
+
+    window.location = "/login";
+  }
 
   return (
     <AppBar className={classes.topBar} position="fixed" color='inherit' sx={{ flexDirection: 'row' }}>
@@ -35,38 +52,44 @@ export default function TopBar(props) {
           'aria-labelledby': 'menu-button',
         }}
       >
-        { !props.private &&
+        { !props.specialUser &&
           <>
             <MenuItem component="a" href="/">User's Stats</MenuItem>
             <MenuItem component="a" href="/recommendation">Recommendation</MenuItem>
             <MenuItem component="a" href="/curated-lists">Curated Lists</MenuItem>
           </>
         }
-        { props.private &&
+        { props.specialUser &&
           <>
-            <MenuItem component="a" href="/private">Curated Lists</MenuItem>
+            <MenuItem component="a" href="/curated-lists">Curated Lists</MenuItem>
           </>
         }
       </Menu>
 
       <div className={classes.linkDiv}>
-        { !props.private &&
+        { !props.specialUser &&
           <>
             <Link className={classes.linkItem} href="/" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>User's Stats</Link>
             <Link className={classes.linkItem} href="/recommendation" underline="none" color="black">Recommendation</Link>
             <Link className={classes.linkItem} href="/curated-lists" underline="none" color="black">Curated Lists</Link>
           </>
         }
-        { props.private &&
+        { props.specialUser &&
           <>
-            <Link className={classes.linkItem} href="/private" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>Curated Lists</Link>
+            <Link className={classes.linkItem} href="/curated-lists" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>Curated Lists</Link>
           </>
         }
       </div>
 
       <div className={classes.userInfo}>
-        <button className={classes.buttonUserInfo} title="set user`s handles" onClick={props.onShowUserInfo}>
-          <ManageAccountsIcon />
+        <span style={{ marginRight: "16px", alignSelf: "center", color: "black" }}>{getUserRole()}</span>
+        { !props.specialUser && 
+          <button className={classes.buttonUserInfo} title="set user`s handles" onClick={props.onShowUserInfo}>
+            <ManageAccountsIcon />
+          </button>
+        }
+        <button className={classes.buttonUserInfo} onClick={logout}>
+            <LogoutIcon />
         </button>
       </div>
     </AppBar>
