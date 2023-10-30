@@ -66,17 +66,19 @@ const CuratedLists = () => {
             );
 
             if (response.status === 200) {
-                console.log(response.data);
-
-                // TO-DO Adicionar redirecionamento para curated-list/{response.data}
-
+                window.location = `/curated-list/${response.data}`;
             } else {
                 alert("Unknown error");
             }
 
             setAddIsLoading(false);
         } catch (error) {
-            alert("Unknown error");
+            if (error.response && error.response.status === 401) {
+                window.location = "/";
+            } else {
+                alert("Unknown error");
+            }
+
             setAddIsLoading(false);
         }
     }
@@ -84,11 +86,16 @@ const CuratedLists = () => {
     useEffect(() => {
         setIsLoading(true);
 
-        if (!isSpecialUser()) tableColumns.push("Progress");
+        let path = `/api/curated-lists`;
+
+        if (!isSpecialUser()) {
+            path += `/${username}`
+            tableColumns.push("Progress");
+        }
 
         const getLists = async () => {
             try {
-                const response = await authApi.get(`/api/curated-lists`,
+                const response = await authApi.get(path,
                     {
                         headers: {
                             Authorization: 'Bearer ' + token
@@ -104,13 +111,17 @@ const CuratedLists = () => {
     
                 setIsLoading(false);
             } catch (error) {
-                alert("Unknown error");
+                if (error.response && error.response.status === 401) {
+                    window.location = "/";
+                } else {
+                    alert("Unknown error");
+                }
                 setIsLoading(false);
             }
         }
 
         getLists();
-    }, [token]);
+    }, [token, username]);
 
     return (
         <>
@@ -130,7 +141,7 @@ const CuratedLists = () => {
                             className={classes.FormInput}
                             onChange={(e) => setDescription(e.target.value)}
                             value={description}
-                            label={"Description*"}
+                            label={"Description"}
                             multiline
                             rows={2}
                         />
