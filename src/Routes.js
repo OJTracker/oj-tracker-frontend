@@ -7,6 +7,7 @@ import {
 import Recommendation from "./pages/Recommendation";
 import Stats from "./pages/Stats";
 import CuratedLists from "./pages/CuratedLists";
+import CuratedList from "./pages/CuratedList";
 
 const Routes = () => {
   return (
@@ -15,6 +16,7 @@ const Routes = () => {
       <Route path="/stats" exact component={Stats}/>
       <Route path="/recommendation" exact component={Recommendation}/>
       <Route path="/curated-lists" exact component={CuratedLists}/>
+      <Route path="/curated-list/:id" component={CuratedList}/>
     </Router>
   )
 }

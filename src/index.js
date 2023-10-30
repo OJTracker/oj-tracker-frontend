@@ -21,6 +21,7 @@ ReactDOM.render(
         <PrivateRoute exact path="/stats" component={App} />
         <PrivateRoute exact path="/recommendation" component={App} />
         <PrivateRoute exact path="/curated-lists" component={App} />
+        <PrivateRoute exact={false} path="/curated-list/:id" component={App} />
         <Route exact path="/login" component={Login} />
       </Switch>
     </Router>

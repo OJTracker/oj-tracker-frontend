@@ -1,0 +1,25 @@
+.actions {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.Paper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    margin: 0;
+    padding: 16px;
+}
+  
+.FormInput {
+  width: 100%;
+  margin: 8px 0 !important;
+}
+  
+.FormButton {
+  margin: 16px 0 !important;
+}
