@@ -104,7 +104,12 @@ const CuratedLists = () => {
                 );
     
                 if (response.status === 200) {
-                    setLists(response.data);
+                    const data  = response.data.map(item => {
+                        item.name = (<u>{item.name}</u>);
+                        return item;
+                    });
+
+                    setLists(data);
                 } else {
                     alert("Unknown error");
                 }
@@ -166,7 +171,7 @@ const CuratedLists = () => {
                                 onClick={() => setAddIsShown(true)}>Add</Button>
                         </div>
                     }
-                    <Table columns={tableColumns} rows={lists} />
+                    <Table columns={tableColumns} rows={lists} redirect={true} dontShow={["id"]}/>
                 </>
             }
         </>
