@@ -16,6 +16,8 @@ import { spojApi } from "../../service/spojApi";
 import { codechefApi } from "../../service/codechefApi";
 import { authApi } from "../../service/authApi";
 
+import { Platforms } from "../../utils/enums";
+
 import classes from "./userInfo.module.css";
 
 const UserInfo = (props) => {
@@ -48,7 +50,7 @@ const UserInfo = (props) => {
   const submit = async () => {
     setIsLoading(true);
 
-    const username = localStorage.getItem("userName");
+    let platformsData = [];
     const token = localStorage.getItem("tk");
 
     if (codeforcesHandle) {
@@ -62,29 +64,23 @@ const UserInfo = (props) => {
           localStorage.setItem("codeforcesHandle", codeforcesHandle);
           dispatch(handleActions.setCodeforcesHandle(codeforcesHandle));
   
-          const codeforcesRanking = res.data.result[0].rating
-          localStorage.setItem("codeforcesRanking", codeforcesRanking);
-          dispatch(userActions.setCodeforcesRanking(codeforcesRanking));
+          const ranking = res.data.result[0].rating
+          localStorage.setItem("codeforcesRanking", ranking);
+          dispatch(userActions.setCodeforcesRanking(ranking));
     
           const profilePicURI = res.data.result[0].avatar
           localStorage.setItem("profilePicURI", profilePicURI);
           dispatch(userActions.setProfilePicURI(profilePicURI));
   
-          await authApi.put(`/api/users/${username}/codeforces`, 
-            {
-              codeforcesHandle,
-              codeforcesRanking,
+          platformsData.push({
+              platform: Platforms.CODEFORCES,
+              handle: codeforcesHandle,
+              ranking,
               profilePicURI
-            },
-            {
-              headers: {
-                Authorization: 'Bearer ' + token
-              }
-            }
-          );
+          });
         }
       } catch (error) {
-        console.log("erro when try to fetch or persist codeforces user info");
+        console.log("erro when try to fetch codeforces user info");
         setIsCodeforcesUserValid(false);
       }
     }
@@ -100,29 +96,23 @@ const UserInfo = (props) => {
           localStorage.setItem("atcoderHandle", atcoderHandle);
           dispatch(handleActions.setAtcoderHandle(atcoderHandle));
 
-          const atcoderRanking = res.data.result[0].rating
-          localStorage.setItem("atcoderRanking", atcoderRanking);
-          dispatch(userActions.setAtcoderRanking(atcoderRanking));
+          const ranking = res.data.result[0].rating
+          localStorage.setItem("atcoderRanking", ranking);
+          dispatch(userActions.setAtcoderRanking(ranking));
 
           const profilePicURI = res.data.result[0].avatarURL;
           localStorage.setItem("profilePicURI", profilePicURI);
           dispatch(userActions.setProfilePicURI(profilePicURI));
 
-          await authApi.put(`/api/users/${username}/atcoder`, 
-            {
-              atcoderHandle,
-              atcoderRanking,
-              profilePicURI
-            },
-            {
-              headers: {
-                Authorization: 'Bearer ' + token
-              }
-            }
-          );
+          platformsData.push({
+            platform: Platforms.ATCODER,
+            handle: atcoderHandle,
+            ranking,
+            profilePicURI
+          });
         }
       } catch (error) {
-        console.log("erro when try to fetch or persist atcoder user info");
+        console.log("erro when try to fetch atcoder user info");
         setIsAtcoderUserValid(false);
       }
     }
@@ -146,21 +136,15 @@ const UserInfo = (props) => {
           localStorage.setItem("profilePicURI", profilePicURI);
           dispatch(userActions.setProfilePicURI(profilePicURI));
 
-          await authApi.put(`/api/users/${username}/uva`, 
-            {
-              uvaHandle,
-              uvaAvgDacu,
-              profilePicURI
-            },
-            {
-              headers: {
-                Authorization: 'Bearer ' + token
-              }
-            }
-          );
+          platformsData.push({
+            platform: Platforms.UVA,
+            handle: uvaHandle,
+            ranking: uvaAvgDacu,
+            profilePicURI
+          });
         }
       } catch (error) {
-        console.log("erro when try to fetch or persist uva user info");
+        console.log("erro when try to fetch uva user info");
         setIsUvaUserValid(false);
       }
     }
@@ -176,29 +160,23 @@ const UserInfo = (props) => {
           localStorage.setItem("spojHandle", spojHandle);
           dispatch(handleActions.setSpojHandle(spojHandle));
 
-          const spojRanking = res.data.result[0].rank;
-          localStorage.setItem("spojRanking", spojRanking);
-          dispatch(userActions.setSpojRanking(spojRanking));
+          const ranking = res.data.result[0].rank;
+          localStorage.setItem("spojRanking", ranking);
+          dispatch(userActions.setSpojRanking(ranking));
 
           const profilePicURI = res.data.result[0].avatarURL;
           localStorage.setItem("profilePicURI", profilePicURI);
           dispatch(userActions.setProfilePicURI(profilePicURI));
 
-          await authApi.put(`/api/users/${username}/spoj`, 
-            {
-              spojHandle,
-              spojRanking,
-              profilePicURI
-            },
-            {
-              headers: {
-                Authorization: 'Bearer ' + token
-              }
-            }
-          );
+          platformsData.push({
+            platform: Platforms.SPOJ,
+            handle: spojHandle,
+            ranking,
+            profilePicURI
+          });
         }
       } catch (error) {
-        console.log("erro when try to fetch or persist spoj user info");
+        console.log("erro when try to fetch spoj user info");
         setIsSpojUserValid(false);
       }
     }
@@ -214,25 +192,36 @@ const UserInfo = (props) => {
           localStorage.setItem("codechefHandle", codechefHandle);
           dispatch(handleActions.setCodechefHandle(codechefHandle));
 
-          const codechefRanking = res.data.result[0].rating;
-          localStorage.setItem("codechefRanking", codechefRanking);
-          dispatch(userActions.setCodechefRanking(codechefRanking));
+          const ranking = res.data.result[0].rating;
+          localStorage.setItem("codechefRanking", ranking);
+          dispatch(userActions.setCodechefRanking(ranking));
 
-          await authApi.put(`/api/users/${username}/codechef`, 
-            {
-              codechefHandle,
-              codechefRanking
-            },
-            {
-              headers: {
-                Authorization: 'Bearer ' + token
-              }
-            }
-          );
+          platformsData.push({
+            platform: Platforms.CODECHEF,
+            handle: codechefHandle,
+            ranking,
+          });
         }
       } catch (error) {
         console.log("erro when try to fetch codechef user info");
         setIsCodechefUserValid(false);
+      }
+    }
+
+    try {
+      await authApi.put(`/api/users/platforms`,
+        platformsData,
+        {
+          headers: {
+            Authorization: 'Bearer ' + token
+          }
+        }
+      );
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        window.location = "/";
+      } else {
+        alert("Error: " + error.message + "\nUser's Handles not persisted.");
       }
     }
 
