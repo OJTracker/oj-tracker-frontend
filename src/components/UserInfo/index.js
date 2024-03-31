@@ -19,6 +19,7 @@ import { authApi } from "../../service/authApi";
 import { Platforms } from "../../utils/enums";
 
 import classes from "./userInfo.module.css";
+import { handleError } from "../../utils/error";
 
 const UserInfo = (props) => {
   const [isCodeforcesUserValid, setIsCodeforcesUserValid] = useState(true);
@@ -218,11 +219,7 @@ const UserInfo = (props) => {
         }
       );
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        window.location = "/";
-      } else {
-        alert("Error: " + error.message + "\nUser's Handles not persisted.");
-      }
+      handleError(error, "\nUser's Handles not persisted.");
     }
 
     setIsLoading(false);
