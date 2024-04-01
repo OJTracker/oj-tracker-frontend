@@ -13,18 +13,23 @@ const handleSlice = createSlice({
   initialState: initialHandlesState,
   reducers: {
     setCodeforcesHandle(state, action) {
+      localStorage.setItem("codeforcesHandle", action.payload);
       state.codeforcesHandle = action.payload;
     },
     setAtcoderHandle(state, action) {
+      localStorage.setItem("atcoderHandle", action.payload);
       state.atcoderHandle = action.payload;
     },
     setUvaHandle(state, action) {
+      localStorage.setItem("uvaHandle", action.payload);
       state.uvaHandle = action.payload;
     },
     setSpojHandle(state, action) {
+      localStorage.setItem("spojHandle", action.payload);
       state.spojHandle = action.payload;
     },
     setCodechefHandle(state, action) {
+      localStorage.setItem("codechefHandle", action.payload);
       state.codechefHandle = action.payload;
     },
     clearHandles(state) {

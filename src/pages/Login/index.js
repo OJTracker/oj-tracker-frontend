@@ -4,6 +4,8 @@ import { useDispatch } from "react-redux";
 import { Card, CardContent, TextField } from '@mui/material';
 import LoadingButton from "@mui/lab/LoadingButton";
 
+import Spinner from "../../components/Spinner";
+
 import { handleActions } from "../../store/handles";
 import { userActions } from "../../store/user";
 
@@ -12,6 +14,8 @@ import classes from "./login.module.css";
 import { authApi } from "../../service/authApi";
 import { getUsername } from '../../utils/auth';
 
+import { updateAcceptedSubmissions, initAcceptedSubmissions, waitAcceptedSubmissions } from '../../utils/acceptedSubmissions';
+
 const Login = () => {
     const dispatch = useDispatch();
 
@@ -19,6 +23,8 @@ const Login = () => {
     const [password, setPassword] = useState('');
 
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingAcceptedSubmissions, setIsLoadingAcceptedSubmissions] = useState(false);
+
     const [credentialsError, setCredentialsError] = useState(false);
 
     const handleSubmit = async () => {
@@ -30,23 +36,47 @@ const Login = () => {
             if (response.status === 200) {
                 localStorage.setItem("tk", response.data.token);
 
+                initAcceptedSubmissions();
+
                 const username = getUsername();
-                localStorage.setItem("userName", username);
                 dispatch(userActions.setUserName(username));
 
                 const profilePicURI = response.data.profilePicURI ?? "";
-                localStorage.setItem("profilePicURI", profilePicURI);
                 dispatch(userActions.setProfilePicURI(profilePicURI));
 
                 const codeforcesHandle = response.data.codeforcesHandle ?? "";
-                localStorage.setItem("codeforcesHandle", codeforcesHandle);
                 dispatch(handleActions.setCodeforcesHandle(codeforcesHandle));
 
                 const codeforcesRanking = response.data.codeforcesRanking ?? "";
-                localStorage.setItem("codeforcesRanking", codeforcesRanking);
                 dispatch(userActions.setCodeforcesRanking(codeforcesRanking));
 
-                // TO-DO: Adicionar outras plataformas
+                const atcoderHandle = response.data.atcoderHandle ?? "";
+                dispatch(handleActions.setAtcoderHandle(atcoderHandle));
+
+                const atcoderRanking = response.data.atcoderRanking ?? "";
+                dispatch(userActions.setAtcoderRanking(atcoderRanking));
+
+                const codechefHandle = response.data.codechefHandle ?? "";
+                dispatch(handleActions.setCodechefHandle(codechefHandle));
+
+                const codechefRanking = response.data.codechefRanking ?? "";
+                dispatch(userActions.setCodechefRanking(codechefRanking));
+
+                const spojHandle = response.data.spojHandle ?? "";
+                dispatch(handleActions.setSpojHandle(spojHandle));
+
+                const spojRanking = response.data.spojRanking ?? "";
+                dispatch(userActions.setSpojRanking(spojRanking));
+
+                const uvaHandle = response.data.uvaHandle ?? "";
+                dispatch(handleActions.setUvaHandle(uvaHandle));
+
+                const uvaRanking = response.data.uvaRanking ?? "";
+                dispatch(userActions.setUvaAvgDacu(uvaRanking));
+
+                setIsLoadingAcceptedSubmissions(true);
+                updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle);
+                await waitAcceptedSubmissions();
 
                 window.location = "/";
             } else {
@@ -69,6 +99,7 @@ const Login = () => {
     return (
         <div className={classes.login}>
             <div className={classes.centered}>
+                {isLoadingAcceptedSubmissions ? <Spinner /> :
                 <Card>
                     <CardContent>
                         <h2>Login</h2>
@@ -104,7 +135,7 @@ const Login = () => {
                             </LoadingButton>
                         </form>
                     </CardContent>
-                </Card>
+                </Card>}
             </div>
         </div>
     );

@@ -15,24 +15,31 @@ const userSlice = createSlice({
   initialState: initialUserState,
   reducers: {
     setProfilePicURI(state, action) {
+      localStorage.setItem("profilePicURI", action.payload);
       state.profilePicURI = action.payload;
     },
     setUserName(state, action) {
+      localStorage.setItem("userName", action.payload);
       state.userName = action.payload;
     },
     setCodeforcesRanking(state, action) {
+      localStorage.setItem("codeforcesRanking", action.payload);
       state.codeforcesRanking = action.payload;
     },
     setAtcoderRanking(state, action) {
+      localStorage.setItem("atcoderRanking", action.payload);
       state.atcoderRanking = action.payload;
     },
     setCodechefRanking(state, action) {
+      localStorage.setItem("codechefRanking", action.payload);
       state.codechefRanking = action.payload;
     },
     setSpojRanking(state, action) {
+      localStorage.setItem("spojRanking", action.payload);
       state.spojRanking = action.payload;
     },
     setUvaAvgDacu(state, action) {
+      localStorage.setItem("uvaAvgDacu", action.payload);
       state.uvaAvgDacu = action.payload;
     },
     clearUserInfo(state) {

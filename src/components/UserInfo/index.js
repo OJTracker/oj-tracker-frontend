@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { handleActions } from "../../store/handles";
 import { userActions } from "../../store/user";
@@ -29,19 +29,19 @@ const UserInfo = (props) => {
   const [isCodechefUserValid, setIsCodechefUserValid] = useState(true);
 
   const [codeforcesHandle, setCodeforcesHandle] = useState(
-    localStorage.getItem("codeforcesHandle") || ""
+    useSelector((state) => state.handles.codeforcesHandle) || ""
   );
   const [uvaHandle, setUvaHandle] = useState(
-    localStorage.getItem("uvaHandle") || ""
+    useSelector((state) => state.handles.uvaHandle) || ""
   );
   const [atcoderHandle, setAtcoderHandle] = useState(
-    localStorage.getItem("atcoderHandle") || ""
+    useSelector((state) => state.handles.atcoderHandle) || ""
   );
   const [spojHandle, setSpojHandle] = useState(
-    localStorage.getItem("spojHandle") || ""
+    useSelector((state) => state.handles.spojHandle) || ""
   );
   const [codechefHandle, setCodechefHandle] = useState(
-    localStorage.getItem("codechefHandle") || ""
+    useSelector((state) => state.handles.codechefHandle) || ""
   );
 
   const [isLoading, setIsLoading] = useState(false);
@@ -62,15 +62,12 @@ const UserInfo = (props) => {
         } else {
           setIsCodeforcesUserValid(true);
   
-          localStorage.setItem("codeforcesHandle", codeforcesHandle);
           dispatch(handleActions.setCodeforcesHandle(codeforcesHandle));
   
           const ranking = res.data.result[0].rating
-          localStorage.setItem("codeforcesRanking", ranking);
           dispatch(userActions.setCodeforcesRanking(ranking));
     
           const profilePicURI = res.data.result[0].avatar
-          localStorage.setItem("profilePicURI", profilePicURI);
           dispatch(userActions.setProfilePicURI(profilePicURI));
   
           platformsData.push({
@@ -94,15 +91,12 @@ const UserInfo = (props) => {
         } else {
           setIsAtcoderUserValid(true);
 
-          localStorage.setItem("atcoderHandle", atcoderHandle);
           dispatch(handleActions.setAtcoderHandle(atcoderHandle));
 
           const ranking = res.data.result[0].rating
-          localStorage.setItem("atcoderRanking", ranking);
           dispatch(userActions.setAtcoderRanking(ranking));
 
           const profilePicURI = res.data.result[0].avatarURL;
-          localStorage.setItem("profilePicURI", profilePicURI);
           dispatch(userActions.setProfilePicURI(profilePicURI));
 
           platformsData.push({
@@ -126,15 +120,12 @@ const UserInfo = (props) => {
         } else {
           setIsUvaUserValid(true);
 
-          localStorage.setItem("uvaHandle", uvaHandle);
           dispatch(handleActions.setUvaHandle(uvaHandle));
 
           const uvaAvgDacu = res.data.result[0].avgDacu;
-          localStorage.setItem("uvaAvgDacu", uvaAvgDacu);
           dispatch(userActions.setUvaAvgDacu(uvaAvgDacu));
 
           const profilePicURI = res.data.result[0].avatar;
-          localStorage.setItem("profilePicURI", profilePicURI);
           dispatch(userActions.setProfilePicURI(profilePicURI));
 
           platformsData.push({
@@ -158,15 +149,12 @@ const UserInfo = (props) => {
         } else {
           setIsSpojUserValid(true);
 
-          localStorage.setItem("spojHandle", spojHandle);
           dispatch(handleActions.setSpojHandle(spojHandle));
 
           const ranking = res.data.result[0].rank;
-          localStorage.setItem("spojRanking", ranking);
           dispatch(userActions.setSpojRanking(ranking));
 
           const profilePicURI = res.data.result[0].avatarURL;
-          localStorage.setItem("profilePicURI", profilePicURI);
           dispatch(userActions.setProfilePicURI(profilePicURI));
 
           platformsData.push({
@@ -190,11 +178,9 @@ const UserInfo = (props) => {
         } else {
           setIsCodechefUserValid(true);
 
-          localStorage.setItem("codechefHandle", codechefHandle);
           dispatch(handleActions.setCodechefHandle(codechefHandle));
 
           const ranking = res.data.result[0].rating;
-          localStorage.setItem("codechefRanking", ranking);
           dispatch(userActions.setCodechefRanking(ranking));
 
           platformsData.push({

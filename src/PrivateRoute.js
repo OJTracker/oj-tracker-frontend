@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import { isAuth, isSpecialUser } from "./utils/auth";
+import { clearAcceptedSubmissions } from "./utils/acceptedSubmissions";
 
 import { handleActions } from "./store/handles";
 import { userActions } from "./store/user";
@@ -23,6 +24,8 @@ const PrivateRoute = ({ component, exact, path }) => {
     }
 
     localStorage.removeItem("tk");
+
+    clearAcceptedSubmissions();
 
     dispatch(handleActions.clearHandles());
     dispatch(userActions.clearUserInfo());
