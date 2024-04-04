@@ -20,16 +20,19 @@ import { atcoderApi } from "../../service/atcoderApi";
 import { spojApi } from "../../service/spojApi";
 import { codechefApi } from "../../service/codechefApi";
 
-import { isSpecialUser, canAct, getUserRole } from "../../utils/auth";
+import { isSpecialUser, canAct } from "../../utils/auth";
+
+import { Platforms } from "../../utils/enums";
+import { handleError } from "../../utils/error";
 
 import classes from './curated-list.module.css';
 
 const platforms = [
-    ["Codeforces", "CODEFORCES"],
-    ["UVA", "UVA"],
-    ["AtCoder", "ATCODER"],
-    ["SPOJ", "SPOJ"],
-    ["Codechef", "CODECHEF"]
+    ["Codeforces", Platforms.CODEFORCES],
+    ["UVA", Platforms.UVA],
+    ["AtCoder", Platforms.ATCODER],
+    ["SPOJ", Platforms.SPOJ],
+    ["Codechef", Platforms.CODECHEF]
 ];
 
 const tableColumns = [
@@ -69,7 +72,6 @@ const CuratedList = () => {
 
     const { id } = useParams();
 
-    const username = localStorage.getItem("userName");
     const token = localStorage.getItem("tk");
 
     const hideEditHandler = () => {
@@ -81,7 +83,31 @@ const CuratedList = () => {
         window.location = `/curated-list/${id}`;
     }
 
-    const deleteProblem = async (id) => {
+    const deleteList = async () => {
+        setIsLoading(true);
+
+        try {
+            const response = await authApi.delete(`/api/curated-lists/${id}`,
+                {
+                    headers: {
+                        Authorization: 'Bearer ' + token
+                    }
+                } 
+            )
+
+            if (response.status === 200) {
+                window.location = "/curated-lists";
+            } else {
+                alert("Unknown error");
+                setIsLoading(false);
+            }
+        } catch (error) {
+            handleError(error, "\nCurated List not deleted!");
+            setIsLoading(false);
+        }
+    }
+
+    const deleteProblem = async (problemId) => {
         setIsLoading(true);
 
         try {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 import Spinner from "../../components/Spinner";
 import Table from "../../components/Table";
@@ -13,7 +14,11 @@ import AddIcon from '@mui/icons-material/Add';
 import { authApi } from "../../service/authApi";
 
 import classes from './curated-lists.module.css';
+
 import { isSpecialUser } from "../../utils/auth";
+import { handleError } from "../../utils/error";
+
+import { updateAcceptedSubmissions, waitAcceptedSubmissions } from "../../utils/acceptedSubmissions";
 
 const tableColumns = [
     "Name",
@@ -23,6 +28,12 @@ const tableColumns = [
 ];
 
 const CuratedLists = () => {
+    const codeforcesHandle = useSelector((state) => state.handles.codeforcesHandle);
+    const atcoderHandle = useSelector((state) => state.handles.atcoderHandle);
+    const uvaHandle = useSelector((state) => state.handles.uvaHandle);
+    const spojHandle = useSelector((state) => state.handles.spojHandle);
+    const codechefHandle = useSelector((state) => state.handles.codechefHandle);
+
     const [lists, setLists] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -34,7 +45,6 @@ const CuratedLists = () => {
 
     const [nameError, setNameError] = useState(false);
 
-    const username = localStorage.getItem("userName");
     const token = localStorage.getItem("tk");
 
     const hideAddHandler = () => {
@@ -55,8 +65,7 @@ const CuratedLists = () => {
                 {
                     name,
                     description,
-                    amount: 0,
-                    author: username
+                    amount: 0
                 },
                 {
                     headers: {
@@ -73,12 +82,7 @@ const CuratedLists = () => {
 
             setAddIsLoading(false);
         } catch (error) {
-            if (error.response && error.response.status === 401) {
-                window.location = "/";
-            } else {
-                alert("Unknown error");
-            }
-
+            handleError(error, "\nCurated List not added!");
             setAddIsLoading(false);
         }
     }
@@ -89,8 +93,26 @@ const CuratedLists = () => {
         let path = `/api/curated-lists`;
 
         if (!isSpecialUser()) {
-            path += `/${username}`
+            path += `/user`
             tableColumns.push("Progress");
+        }
+
+        const updateListsAsync = () => {
+            const update = () => {
+                updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle);
+                waitAcceptedSubmissions();
+
+                setIsLoading(true);
+
+                setIsLoading(false);
+            }
+
+            update();
+            const updateInterval = setInterval(() => {
+                update();
+            },  5 * 60 * 1000);
+
+            return () => clearInterval(updateInterval);
         }
 
         const getLists = async () => {
@@ -102,31 +124,28 @@ const CuratedLists = () => {
                         }
                     }
                 );
-    
+
                 if (response.status === 200) {
-                    const data  = response.data.map(item => {
+                    const data = response.data.map(item => {
                         item.name = (<u>{item.name}</u>);
                         return item;
                     });
 
                     setLists(data);
+                    updateListsAsync();
                 } else {
                     alert("Unknown error");
                 }
-    
+
                 setIsLoading(false);
             } catch (error) {
-                if (error.response && error.response.status === 401) {
-                    window.location = "/";
-                } else {
-                    alert("Unknown error");
-                }
+                handleError(error, "\nCurated Lists query unsuccessful!");
                 setIsLoading(false);
             }
         }
 
         getLists();
-    }, [token, username]);
+    }, [token, codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle]);
 
     return (
         <>
@@ -171,7 +190,12 @@ const CuratedLists = () => {
                                 onClick={() => setAddIsShown(true)}>Add</Button>
                         </div>
                     }
-                    <Table columns={tableColumns} rows={lists} redirect={true} dontShow={["id"]}/>
+                    <Table columns={tableColumns} rows={lists} redirect={true}
+                        dontShow={[
+                            "id", "codeforcesProblems", "uvaProblems",
+                            "atcoderProblems", "spojProblems", "codechefProblems"
+                        ]}
+                    />
                 </>
             }
         </>
