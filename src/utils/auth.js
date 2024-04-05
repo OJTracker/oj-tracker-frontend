@@ -42,14 +42,14 @@ const getUserRole = () => {
     return decodedToken.groups[0];
 }
 
-const canAct = (sameAuthor) => {
+const canAct = (author) => {
     const token = localStorage.getItem("tk");
     if (token === null) window.location = "/";
 
     const decodedToken = jwt_decode(token);
     if (["ADMIN"].includes(decodedToken.groups[0])){
         return true;
-    } else if (["COACH"].includes(decodedToken.groups[0]) && sameAuthor) {
+    } else if (["COACH"].includes(decodedToken.groups[0]) && author === decodedToken.upn) {
         return true;
     } else {
         return false;

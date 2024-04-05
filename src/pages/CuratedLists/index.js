@@ -78,9 +78,8 @@ const CuratedLists = () => {
                 window.location = `/curated-list/${response.data}`;
             } else {
                 alert("Unknown error");
+                setAddIsLoading(false);
             }
-
-            setAddIsLoading(false);
         } catch (error) {
             handleError(error, "\nCurated List not added!");
             setAddIsLoading(false);
@@ -126,22 +125,28 @@ const CuratedLists = () => {
                 );
 
                 if (response.status === 200) {
+                    let notSpecialUser = !isSpecialUser();
+
                     const data = response.data.map(item => {
                         item.name = (<u>{item.name}</u>);
+
+                        if (notSpecialUser) {
+                            // Calcular progresso
+                        }
+
                         return item;
                     });
 
                     setLists(data);
-                    updateListsAsync();
+                    if (notSpecialUser) updateListsAsync();
                 } else {
                     alert("Unknown error");
                 }
-
-                setIsLoading(false);
             } catch (error) {
                 handleError(error, "\nCurated Lists query unsuccessful!");
-                setIsLoading(false);
             }
+
+            setIsLoading(false);
         }
 
         getLists();

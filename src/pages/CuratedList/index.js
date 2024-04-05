@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+
 import { useParams } from "react-router-dom";
 
 import { Button, Paper, TextField, FormControl, Select, MenuItem, InputLabel, Alert, IconButton } from "@mui/material";
@@ -25,6 +27,8 @@ import { isSpecialUser, canAct } from "../../utils/auth";
 import { Platforms } from "../../utils/enums";
 import { handleError } from "../../utils/error";
 
+import { updateAcceptedSubmissions, waitAcceptedSubmissions } from "../../utils/acceptedSubmissions";
+
 import classes from './curated-list.module.css';
 
 const platforms = [
@@ -42,6 +46,12 @@ const tableColumns = [
 ];
 
 const CuratedList = () => {
+    const codeforcesHandle = useSelector((state) => state.handles.codeforcesHandle);
+    const atcoderHandle = useSelector((state) => state.handles.atcoderHandle);
+    const uvaHandle = useSelector((state) => state.handles.uvaHandle);
+    const spojHandle = useSelector((state) => state.handles.spojHandle);
+    const codechefHandle = useSelector((state) => state.handles.codechefHandle);
+
     const [list, setList] = useState({});
     const [isLoading, setIsLoading] = useState(true);
 
@@ -79,8 +89,8 @@ const CuratedList = () => {
     }
 
     const hideAddHandler = () => {
+        setRefresh(!refresh);
         setAddIsShown(false);
-        window.location = `/curated-list/${id}`;
     }
 
     const deleteList = async () => {
@@ -111,7 +121,7 @@ const CuratedList = () => {
         setIsLoading(true);
 
         try {
-            const response = await authApi.delete(`/api/curated-lists/problem/${id}`,
+            const response = await authApi.delete(`/api/curated-lists/${id}/problem/${problemId}`,
                 {
                     headers: {
                         Authorization: 'Bearer ' + token
@@ -123,17 +133,12 @@ const CuratedList = () => {
                 setRefresh(!refresh);
             } else {
                 alert("Unknown error");
-                setIsLoading(false);
             }
         } catch (error) {
-            if (error.response && error.response.status === 401) {
-                window.location = "/";
-            } else {
-                alert("Unknown error");
-            }
-
-            setIsLoading(false);
+            handleError(error, "\nProblem not deleted!");
         }
+
+        setIsLoading(false);
     }
 
     const submitEdit = async () => {
@@ -149,9 +154,7 @@ const CuratedList = () => {
             const response = await authApi.put(`/api/curated-lists/${id}`,
                 {
                     name,
-                    description,
-                    authorRole: getUserRole(),
-                    author: username
+                    description
                 },
                 {
                     headers: {
@@ -161,21 +164,16 @@ const CuratedList = () => {
             );
 
             if (response.status === 200) {
-                window.location = `/curated-list/${id}`;
+                setRefresh(!refresh);
+                setEditIsShown(false);
             } else {
                 alert("Unknown error");
             }
-
-            setEditIsLoading(false);
         } catch (error) {
-            if (error.response && error.response.status === 401) {
-                window.location = "/";
-            } else {
-                alert("Unknown error");
-            }
-
-            setEditIsLoading(false);
+            handleError(error, "\nProblem not edited!");
         }
+
+        setEditIsLoading(false);
     }
 
     const submitAdd = async () => {
@@ -202,7 +200,7 @@ const CuratedList = () => {
         let link = "";
 
         switch (platform) {
-            case "CODEFORCES":
+            case Platforms.CODEFORCES:
                 try {
                     let firstNonDigit = externalId.search(/[^0-9]/);
                     let contestId = externalId.slice(0, firstNonDigit);
@@ -226,21 +224,16 @@ const CuratedList = () => {
                         return;
                     }
                 } catch (error) {
-                    if (error.response && error.response.status === 401) {
-                        window.location = "/";
-                    } else {
-                        alert("Unknown error");
-                    }
-        
+                    handleError(error, "\nProblem not added!");
                     setAddIsLoading(false);
                     return;
                 }
                 break;
 
-            case "UVA":
+            case Platforms.UVA:
                 break;
 
-            case "ATCODER":
+            case Platforms.ATCODER:
                 try {
                     const response = await atcoderApi.get(`/problems?problemId=${externalId}`);
 
@@ -252,29 +245,49 @@ const CuratedList = () => {
                             return;
                         }
 
-                        link = `https://atcoder.jp/contests/${response.data.result[0].contestId}/tasks/${response.data.result[0].problemId}`;
-                        problemName = response.data.result[0].name;
+                        let problem = response.data.result[0];
+                        link = `https://atcoder.jp/contests/${problem.contestId}/tasks/${problem.problemId}`;
+                        problemName = problem.name;
                     } else {
                         alert("Unknown error");
                         setAddIsLoading(false);
                         return;
                     }
                 } catch (error) {
-                    if (error.response && error.response.status === 401) {
-                        window.location = "/";
-                    } else {
-                        alert("Unknown error");
-                    }
-        
+                    handleError(error, "\nProblem not added!");
                     setAddIsLoading(false);
                     return;
                 }
                 break;
 
-            case "SPOJ":
+            case Platforms.SPOJ:
                 break;
 
-            case "CODECHEF":
+            case Platforms.CODECHEF:
+                try {
+                    const response = await codechefApi.get(`/problems?problemId=${externalId}`);
+
+                    if (response.status === 200) {
+                        if (response.data.result.length < 1) {
+                            setExternalIdError(true);
+                            setExternalIdHelperText("Invalid Id.");
+                            setAddIsLoading(false);
+                            return;
+                        }
+
+                        let problem = response.data.result[0];
+                        link = `https://www.codechef.com/problems/${problem.problemId}`;
+                        problemName = problem.problemName;
+                    } else {
+                        alert("Unknown error");
+                        setAddIsLoading(false);
+                        return;
+                    }
+                } catch (error) {
+                    handleError(error, "\nProblem not added!");
+                    setAddIsLoading(false);
+                    return;
+                }
                 break;
 
             default:
@@ -283,7 +296,7 @@ const CuratedList = () => {
         }
 
         setExternalIdError(false);
-        setExternalIdHelperText("");        
+        setExternalIdHelperText("");
 
         try {
             const response = await authApi.post(`/api/curated-lists/${id}/problem`,
@@ -291,9 +304,7 @@ const CuratedList = () => {
                     name: problemName,
                     platform,
                     externalId,
-                    link,
-                    authorRole: getUserRole(),
-                    author: username
+                    link
                 },
                 {
                     headers: {
@@ -307,41 +318,53 @@ const CuratedList = () => {
             } else {
                 alert("Unknown error");
             }
-
-            setAddIsLoading(false);
         } catch (error) {
-            if (error.response && error.response.status === 401) {
-                window.location = "/";
-            } else {
-                alert("Unknown error");
-            }
-
-            setAddIsLoading(false);
+            handleError(error, "\nProblem not persisted!");
         }
+
+        setAddIsLoading(false);
     }
 
     useEffect(() => {
         setIsLoading(true);
 
-        let path = `/api/curated-lists/${id}`;
-
-        if (!isSpecialUser()) {
-            path += `/${username}`
+        if (!isSpecialUser())
             tableColumns.push("Status");
+
+        const updateListAsync = () => {
+            const update = () => {
+                updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle);
+                waitAcceptedSubmissions();
+    
+                setIsLoading(true);
+                // Calcular progresso
+                setIsLoading(false);
+            }
+
+            update();
+            const updateInterval = setInterval(() => {
+                update();
+            },  5 * 60 * 1000);
+
+            return () => clearInterval(updateInterval);
         }
 
         const getList = async () => {
             try {
-                const response = await authApi.get(path,
+                const response = await authApi.get(`/api/curated-lists/${id}`,
                     {
                         headers: {
                             Authorization: 'Bearer ' + token
                         }
                     }
                 );
-    
+
                 if (response.status === 200) {
-                    if (canAct(response.data.author === username)) {
+                    if (!isSpecialUser()) {
+
+                        setList(response.data);
+                        updateListAsync();
+                    } else if (canAct(response.data.author)) {
                         setNewTab(false);
 
                         tableColumns.push("");
@@ -359,33 +382,28 @@ const CuratedList = () => {
                                 delete: (<IconButton style={{ color: 'red' }} onClick={() => deleteProblem(item.problemId)}><DeleteIcon /></IconButton>)
                             };
                         });
-                    }
 
-                    setList(response.data);
+                        setList(response.data);
+                    }
 
                     setName(response.data.name);
                     setDescription(response.data.description);
                 } else {
                     alert("Unknown error");
                 }
-
-                setIsLoading(false);
             } catch (error) {
-                if (error.response && error.response.status === 401) {
-                    window.location = "/";
-                } else {
-                    alert("Unknown error");
-                }
-                setIsLoading(false);
+                handleError(error, "\nCurated List query unsuccessful!");
             }
+
+            setIsLoading(false);
         }
 
         getList();
-    }, [token, username, refresh]);
+    }, [token, refresh, codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle]);
 
     return (
         <>
-            {isLoading ? <Spinner /> : 
+            {isLoading ? <Spinner /> :
                 <>
                     {editIsShown && (
                         <Modal onClose={hideEditHandler}>
@@ -463,7 +481,7 @@ const CuratedList = () => {
                         <h1>{list.name}</h1>
                         <h2>{list.description}</h2>
                     </div>
-                    { canAct(list.author === username) &&
+                    { canAct(list.author) &&
                         <div className={classes.actions}>
                             <div>
                                 <Button variant="contained" endIcon={<EditIcon />} onClick={() => setEditIsShown(true)}
@@ -471,7 +489,7 @@ const CuratedList = () => {
                                 >
                                     Edit
                                 </Button>
-                                <Button variant="contained" endIcon={<DeleteIcon />} onClick={() => null /* TO-DO */}
+                                <Button variant="contained" endIcon={<DeleteIcon />} onClick={() => deleteList()}
                                     style={{ backgroundColor: 'red', color: 'white' }}
                                 >
                                     Delete
