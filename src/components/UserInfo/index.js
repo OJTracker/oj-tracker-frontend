@@ -18,8 +18,10 @@ import { authApi } from "../../service/authApi";
 
 import { Platforms } from "../../utils/enums";
 
-import classes from "./userInfo.module.css";
 import { handleError } from "../../utils/error";
+import { clearAcceptedSubmissions, initAcceptedSubmissions, updateAcceptedSubmissions, waitAcceptedSubmissions } from "../../utils/acceptedSubmissions";
+
+import classes from "./userInfo.module.css";
 
 const UserInfo = (props) => {
   const [isCodeforcesUserValid, setIsCodeforcesUserValid] = useState(true);
@@ -208,11 +210,21 @@ const UserInfo = (props) => {
       handleError(error, "\nUser's Handles not persisted.");
     }
 
-    setIsLoading(false);
+    if (window.location.href.includes("/curated-lists")) {
+      clearAcceptedSubmissions();
+      initAcceptedSubmissions();
+
+      updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle);
+      await waitAcceptedSubmissions();
+
+      window.location.reload();
+    } else {
+      setIsLoading(false);
+    }
   }
 
   return (
-    <Modal onClose={props.onClose}>
+    <Modal onClose={isLoading ? null : props.onClose}>
       <Paper className={classes.Paper}>
         <h2>User`s Handles</h2>
         <TextField

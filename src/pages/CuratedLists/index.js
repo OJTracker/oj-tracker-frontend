@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
 
 import Spinner from "../../components/Spinner";
@@ -18,7 +18,7 @@ import classes from './curated-lists.module.css';
 import { isSpecialUser } from "../../utils/auth";
 import { handleError } from "../../utils/error";
 
-import { updateAcceptedSubmissions, waitAcceptedSubmissions } from "../../utils/acceptedSubmissions";
+import { calculateProgress, updateAcceptedSubmissions, waitAcceptedSubmissions } from "../../utils/acceptedSubmissions";
 
 const tableColumns = [
     "Name",
@@ -44,6 +44,9 @@ const CuratedLists = () => {
     const [description, setDescription] = useState("");
 
     const [nameError, setNameError] = useState(false);
+
+    const initial = useRef(true);
+    const updateStarted = useRef(false);
 
     const token = localStorage.getItem("tk");
 
@@ -96,24 +99,6 @@ const CuratedLists = () => {
             tableColumns.push("Progress");
         }
 
-        const updateListsAsync = () => {
-            const update = () => {
-                updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle);
-                waitAcceptedSubmissions();
-
-                setIsLoading(true);
-
-                setIsLoading(false);
-            }
-
-            update();
-            const updateInterval = setInterval(() => {
-                update();
-            },  5 * 60 * 1000);
-
-            return () => clearInterval(updateInterval);
-        }
-
         const getLists = async () => {
             try {
                 const response = await authApi.get(path,
@@ -125,20 +110,20 @@ const CuratedLists = () => {
                 );
 
                 if (response.status === 200) {
-                    let notSpecialUser = !isSpecialUser();
-
                     const data = response.data.map(item => {
                         item.name = (<u>{item.name}</u>);
 
-                        if (notSpecialUser) {
-                            // Calcular progresso
+                        if (!isSpecialUser()) {
+                            item.progress = calculateProgress(
+                                item.amount, item.codeforcesProblems, item.uvaProblems, item.atcoderProblems, item.spojProblems,
+                                item.codechefProblems
+                            );
                         }
 
                         return item;
                     });
 
                     setLists(data);
-                    if (notSpecialUser) updateListsAsync();
                 } else {
                     alert("Unknown error");
                 }
@@ -151,6 +136,42 @@ const CuratedLists = () => {
 
         getLists();
     }, [token, codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle]);
+
+    useEffect(() => {
+        const updateListsAsync = async () => {
+            const update = async () => {
+                updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle);
+                await waitAcceptedSubmissions();
+
+                setIsLoading(true);
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                var newLists = lists.map(item => {
+                    item.progress = calculateProgress(
+                        item.amount, item.codeforcesProblems, item.uvaProblems, item.atcoderProblems, item.spojProblems,
+                        item.codechefProblems
+                    );
+
+                    return item;
+                });
+
+                setLists(newLists);
+                setIsLoading(false);
+            }
+
+            updateStarted.current = true;
+
+            await update();
+            const updateInterval = setInterval(async () => {
+                await update();
+            },  5 * 60 * 1000);
+
+            return () => clearInterval(updateInterval);
+        }
+
+        if (lists.length > 0 && !isSpecialUser() && !updateStarted.current) updateListsAsync();
+    }, [lists, codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle]);
 
     return (
         <>
