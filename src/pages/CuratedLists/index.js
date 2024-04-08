@@ -45,7 +45,6 @@ const CuratedLists = () => {
 
     const [nameError, setNameError] = useState(false);
 
-    const initial = useRef(true);
     const updateStarted = useRef(false);
 
     const token = localStorage.getItem("tk");

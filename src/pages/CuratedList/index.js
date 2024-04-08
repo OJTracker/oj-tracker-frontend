@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
 
 import { useParams } from "react-router-dom";
@@ -10,6 +10,8 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import NoCheckCircleIcon from '@mui/icons-material/RemoveCircle';
 
 import Spinner from "../../components/Spinner";
 import Table from "../../components/Table";
@@ -27,7 +29,7 @@ import { isSpecialUser, canAct } from "../../utils/auth";
 import { Platforms } from "../../utils/enums";
 import { handleError } from "../../utils/error";
 
-import { updateAcceptedSubmissions, waitAcceptedSubmissions } from "../../utils/acceptedSubmissions";
+import { checkAccepted, updateAcceptedSubmissions, waitAcceptedSubmissions } from "../../utils/acceptedSubmissions";
 
 import classes from './curated-list.module.css';
 
@@ -79,6 +81,8 @@ const CuratedList = () => {
     const [newTab, setNewTab] = useState(true);
 
     const [refresh, setRefresh] = useState(false);
+
+    const updateStarted = useRef(false);
 
     const { id } = useParams();
 
@@ -329,25 +333,7 @@ const CuratedList = () => {
         setIsLoading(true);
 
         if (!isSpecialUser())
-            tableColumns.push("Status");
-
-        const updateListAsync = () => {
-            const update = () => {
-                updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle);
-                waitAcceptedSubmissions();
-    
-                setIsLoading(true);
-                // Calcular progresso
-                setIsLoading(false);
-            }
-
-            update();
-            const updateInterval = setInterval(() => {
-                update();
-            },  5 * 60 * 1000);
-
-            return () => clearInterval(updateInterval);
-        }
+            tableColumns.push("Done");
 
         const getList = async () => {
             try {
@@ -361,9 +347,17 @@ const CuratedList = () => {
 
                 if (response.status === 200) {
                     if (!isSpecialUser()) {
+                        response.data.problems = response.data.problems.map(item => {
+                            let done = checkAccepted(item.platform, item.externalId) ?
+                                (<CheckCircleIcon style={{ color: 'green' }} />) : (<NoCheckCircleIcon style={{ color: 'darkgrey' }} />)
+
+                            return {
+                                ...item,
+                                done
+                            };
+                        });
 
                         setList(response.data);
-                        updateListAsync();
                     } else if (canAct(response.data.author)) {
                         setNewTab(false);
 
@@ -400,6 +394,44 @@ const CuratedList = () => {
 
         getList();
     }, [token, refresh, codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle]);
+
+    useEffect(() => {
+        const updateListAsync = async () => {
+            const update = async () => {
+                updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle);
+                await waitAcceptedSubmissions();
+    
+                setIsLoading(true);
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                var newList = list;
+                newList.problems = newList.problems.map(item => {
+                    let done = checkAccepted(item.platform, item.externalId) ?
+                        (<CheckCircleIcon style={{ color: 'green' }} />) : (<NoCheckCircleIcon style={{ color: 'darkgrey' }} />)
+
+                    return {
+                        ...item,
+                        done
+                    };
+                })
+
+                setList(newList);
+                setIsLoading(false);
+            }
+
+            updateStarted.current = true;
+
+            await update();
+            const updateInterval = setInterval(async () => {
+                await update();
+            },  5 * 60 * 1000);
+
+            return () => clearInterval(updateInterval);
+        }
+
+        if (list.problems && !isSpecialUser() && !updateStarted.current) updateListAsync();
+    }, [list, codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle]);
 
     return (
         <>

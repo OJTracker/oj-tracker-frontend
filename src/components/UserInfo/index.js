@@ -83,6 +83,11 @@ const UserInfo = (props) => {
         console.log("erro when try to fetch codeforces user info");
         setIsCodeforcesUserValid(false);
       }
+    } else {
+      platformsData.push({ platform: Platforms.CODEFORCES, handle: "", ranking: "0", profilePicURI: "" });
+      dispatch(handleActions.setCodeforcesHandle(""));
+      dispatch(userActions.setCodeforcesRanking("0"));
+      dispatch(userActions.setProfilePicURI(""));
     }
 
     if (atcoderHandle) {
@@ -112,6 +117,11 @@ const UserInfo = (props) => {
         console.log("erro when try to fetch atcoder user info");
         setIsAtcoderUserValid(false);
       }
+    } else {
+      platformsData.push({ platform: Platforms.ATCODER, handle: "", ranking: "0", profilePicURI: "" });
+      dispatch(handleActions.setAtcoderHandle(""));
+      dispatch(userActions.setAtcoderRanking("0"));
+      dispatch(userActions.setProfilePicURI(""));
     }
 
     if (uvaHandle) {
@@ -141,6 +151,11 @@ const UserInfo = (props) => {
         console.log("erro when try to fetch uva user info");
         setIsUvaUserValid(false);
       }
+    } else {
+      platformsData.push({ platform: Platforms.UVA, handle: "", ranking: "0", profilePicURI: "" });
+      dispatch(handleActions.setUvaHandle(""));
+      dispatch(userActions.setUvaAvgDacu("0"));
+      dispatch(userActions.setProfilePicURI(""));
     }
 
     if (spojHandle) {
@@ -170,6 +185,11 @@ const UserInfo = (props) => {
         console.log("erro when try to fetch spoj user info");
         setIsSpojUserValid(false);
       }
+    } else {
+      platformsData.push({ platform: Platforms.SPOJ, handle: "", ranking: "0", profilePicURI: "" });
+      dispatch(handleActions.setSpojHandle(""));
+      dispatch(userActions.setSpojRanking("0"));
+      dispatch(userActions.setProfilePicURI(""));
     }
 
     if (codechefHandle) {
@@ -195,6 +215,10 @@ const UserInfo = (props) => {
         console.log("erro when try to fetch codechef user info");
         setIsCodechefUserValid(false);
       }
+    } else {
+      platformsData.push({ platform: Platforms.CODECHEF, handle: "", ranking: "0" });
+      dispatch(handleActions.setCodechefHandle(""));
+      dispatch(userActions.setCodechefRanking("0"));
     }
 
     try {
@@ -210,7 +234,7 @@ const UserInfo = (props) => {
       handleError(error, "\nUser's Handles not persisted.");
     }
 
-    if (window.location.href.includes("/curated-lists")) {
+    if (window.location.href.includes("/curated-list")) {
       clearAcceptedSubmissions();
       initAcceptedSubmissions();
 

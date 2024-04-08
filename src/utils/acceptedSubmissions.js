@@ -59,6 +59,13 @@ const getAcceptedUserSubmissionsNumber = (platform, listProblems) => {
     return listProblems.filter(problemId => accepted.includes(problemId)).length;
 }
 
+const checkAccepted = (platform, problemId) => {
+    let acceptedRaw = localStorage.getItem(platform + "AcceptedSubmissions");
+    if (!acceptedRaw) return false;
+
+    return JSON.parse(acceptedRaw).includes(problemId) ? true : false;
+}
+
 const getAcceptedUserSubmissionsAsync = async (api, handle, platform) => {
     localStorage.setItem("isUpdating" + platform + "AcceptedSubmissions", true);
 
@@ -96,4 +103,7 @@ const waitAcceptedSubmissions = async () => {
     }
 }
 
-export { initAcceptedSubmissions, clearAcceptedSubmissions, updateAcceptedSubmissions, waitAcceptedSubmissions, calculateProgress };
+export {
+    initAcceptedSubmissions, clearAcceptedSubmissions, updateAcceptedSubmissions, waitAcceptedSubmissions, calculateProgress,
+    checkAccepted
+};
