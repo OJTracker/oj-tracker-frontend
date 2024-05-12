@@ -2,7 +2,8 @@ const handleError = (error, message) => {
     if (error.response && error.response.status === 401) {
         window.location = "/";
       } else {
-        alert("Error: " + error.message + message);
+        if (error.response.data) alert("Error: " + error.response.data);
+        else alert("Error: " + error.message + message);
       }
 }
 

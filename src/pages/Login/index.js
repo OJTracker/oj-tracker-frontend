@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from "react-redux";
 
-import { Card, CardContent, TextField } from '@mui/material';
+import { Card, CardContent, TextField, Link, Alert, AlertTitle } from '@mui/material';
 import LoadingButton from "@mui/lab/LoadingButton";
+
+import WifiTetheringIcon from '@mui/icons-material/WifiTethering';
 
 import Spinner from "../../components/Spinner";
 
@@ -16,8 +18,13 @@ import { getUsername } from '../../utils/auth';
 
 import { updateAcceptedSubmissions, initAcceptedSubmissions, waitAcceptedSubmissions } from '../../utils/acceptedSubmissions';
 
-const Login = () => {
+import unb from '../../assets/imgs/unb.png';
+import { handleError } from '../../utils/error';
+
+const Login = (props) => {
     const dispatch = useDispatch();
+
+    const [signup, setSignup] = useState(false);
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -26,8 +33,12 @@ const Login = () => {
     const [isLoadingAcceptedSubmissions, setIsLoadingAcceptedSubmissions] = useState(false);
 
     const [credentialsError, setCredentialsError] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     const handleSubmit = async () => {
+        if (!username || !password) { setCredentialsError(true); return; }
+        else setCredentialsError(false);
+
         try {
             setIsLoading(true);
 
@@ -86,23 +97,47 @@ const Login = () => {
 
             setIsLoading(false);
         } catch (error) {
-            if (error.response && error.response.status === 401) {
-                setCredentialsError(true);
-            } else {
-                alert("Unknown error");
-            }
-
+            handleError(error);
             setIsLoading(false);
         }
     };
 
+    const handleSignUp = async () => {
+        if (!username || !password) { setCredentialsError(true); return; }
+        else setCredentialsError(false);
+
+        try {
+            setIsLoading(true);
+
+            const response = await authApi.post('/api/users', { username, password });
+
+            if (response.status === 200) {
+                setShowSuccess(true);
+            } else {
+                alert("Unknown error");
+                setCredentialsError(true);
+            }
+ 
+            setIsLoading(false);
+        } catch (error) {
+            handleError(error);
+            setIsLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        if (props.signup) setSignup(true);
+    }, [])
+
     return (
         <div className={classes.login}>
+            <div className={classes.background} />
             <div className={classes.centered}>
                 {isLoadingAcceptedSubmissions ? <Spinner /> :
                 <Card>
-                    <CardContent>
-                        <h2>Login</h2>
+                    <CardContent className={classes.card}>
+                        <h3 className={classes.logo}>OJTracker <WifiTetheringIcon /></h3>
+                        <h2 className={classes.title}>{signup ? "Sign Up" : "Login"}</h2>
                         <form>
                             <TextField
                                 label="Username"
@@ -124,15 +159,33 @@ const Login = () => {
                                 error={credentialsError}
                                 helperText={credentialsError ? "Invalid credentials" : ""}
                             />
-                            <LoadingButton
-                                loading={isLoading}
-                                variant="contained"
-                                className={classes.FormButton}
-                                onClick={handleSubmit}
-                                fullWidth
-                            >
-                                SUBMIT
-                            </LoadingButton>
+                            {
+                                showSuccess ? 
+                                <Alert severity="success">
+                                    <AlertTitle>Success - Registration in Analysis!</AlertTitle>
+                                    An administrator will review your registration and you will be able to log in once approved.
+                                </Alert> :
+                                <>
+                                    <LoadingButton
+                                        loading={isLoading}
+                                        variant="contained"
+                                        className={classes.FormButton}
+                                        onClick={signup ? handleSignUp : handleSubmit}
+                                        fullWidth
+                                    >
+                                        SUBMIT
+                                    </LoadingButton>
+                                    <p>
+                                        {signup ? "Already have an account? " : "Don't have an account? "}
+                                        <Link color="primary" onClick={() => setSignup(!signup)} className={classes.link}>
+                                            {signup ? "Log in" : "Sign Up"}
+                                        </Link>
+                                    </p>
+                                    <div className={classes.unbFooter}>
+                                        <img src={unb} className={classes.unbImg} />
+                                    </div>
+                                </>
+                            }
                         </form>
                     </CardContent>
                 </Card>}

@@ -6,18 +6,58 @@
     background-color: rgba(76, 93, 138, 0.1);
 }
 
+.background {
+  height: 100%;
+  filter: blur(2px);
+  position: fixed;
+  left: 0;
+  right: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://noticias.unb.br/images/Noticias/2023/09-Set/01set2023_FGA15anos_raquelaviani22.jpg');
+  background-size: cover;
+}
+
 .centered {
     max-width: 400px;
     width: 100%;
     text-align: center;
     padding: 16px;
+    z-index: 1;
 }
-  
+
+.card {
+    padding-bottom: 13px;
+}
+
+.logo {
+    text-align: end;
+    margin-top: 0px;
+    color: #00a6eb;
+}
+
+.title {
+    text-align: start;
+    margin-bottom: 8px;
+    margin-top: 0px;
+}
+
 .FormButton {
     margin: 16px 0 !important;
-    background-color: #4a8ddc !important;
 }
 
 .FormInput {
     margin: 8px 0 !important;
+}
+
+.unbFooter {
+    display: flex;
+    justify-content: center;
+    margin-top: 17px;
+}
+
+.unbImg {
+    scale: 0.45;
+}
+
+.link {
+    cursor: pointer;
 }
