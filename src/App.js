@@ -10,7 +10,7 @@ import ASide from "./components/ASide";
 import { makeStyles } from "@material-ui/core/styles";
 import { AppBar, Container, Grid } from "@material-ui/core";
 
-import { isSpecialUser } from "./utils/auth";
+import { isAdmin, isSpecialUser } from "./utils/auth";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -71,7 +71,7 @@ const App = () => {
       )}
       <div className={classes.root}> 
         <AppBar position="fixed" className={classes.appBar}>
-          <TopBar onShowUserInfo={showUserInfoHandler} specialUser={isSpecialUser()} />
+          <TopBar onShowUserInfo={showUserInfoHandler} specialUser={isSpecialUser()} isAdmin={isAdmin()} />
         </AppBar>
         { !isSpecialUser() && <ASide /> }
         <main className={classes.content}>

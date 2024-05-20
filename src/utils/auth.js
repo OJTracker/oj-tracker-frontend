@@ -26,6 +26,18 @@ const isSpecialUser = () => {
     }
 }
 
+const isAdmin = () => {
+    const token = localStorage.getItem("tk");
+    if (token === null) return false;
+
+    const decodedToken = jwt_decode(token);
+    if (["ADMIN"].includes(decodedToken.groups[0])) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 const getUsername = () => {
     const token = localStorage.getItem("tk");
     if (token === null) window.location = "/";
@@ -56,4 +68,4 @@ const canAct = (author) => {
     }
 }
 
-export { isAuth, isSpecialUser, getUserRole, getUsername, canAct };
+export { isAuth, isSpecialUser, getUserRole, getUsername, canAct, isAdmin };

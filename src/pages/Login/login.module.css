@@ -12,7 +12,7 @@
   position: fixed;
   left: 0;
   right: 0;
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://noticias.unb.br/images/Noticias/2023/09-Set/01set2023_FGA15anos_raquelaviani22.jpg');
+  /* background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://noticias.unb.br/images/Noticias/2023/09-Set/01set2023_FGA15anos_raquelaviani22.jpg'); */
   background-size: cover;
 }
 

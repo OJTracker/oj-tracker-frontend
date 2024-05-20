@@ -136,7 +136,7 @@ const Login = (props) => {
                 {isLoadingAcceptedSubmissions ? <Spinner /> :
                 <Card>
                     <CardContent className={classes.card}>
-                        <h3 className={classes.logo}>OJTracker <WifiTetheringIcon /></h3>
+                        <h3 className={classes.logo}>OJTracker</h3>
                         <h2 className={classes.title}>{signup ? "Sign Up" : "Login"}</h2>
                         <form>
                             <TextField
@@ -181,9 +181,9 @@ const Login = (props) => {
                                             {signup ? "Log in" : "Sign Up"}
                                         </Link>
                                     </p>
-                                    <div className={classes.unbFooter}>
+                                    {/* <div className={classes.unbFooter}>
                                         <img src={unb} className={classes.unbImg} />
-                                    </div>
+                                    </div> */}
                                 </>
                             }
                         </form>

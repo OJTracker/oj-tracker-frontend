@@ -1,0 +1,44 @@
+.container {
+    text-align: center;
+    width: 100%;
+}
+
+.subtitle {
+    text-align: left;
+}
+
+.grid {
+    justify-content: start;
+    margin-bottom: 38px !important;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: -38px;
+    margin-bottom: 34px;
+}
+
+.spinner {
+    height: 100px !important;
+    width: 100px !important;
+    padding: 19px 0px;
+}
+
+.Paper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    margin: 0;
+    padding: 16px;
+}
+  
+.FormInput {
+  width: 100%;
+  margin: 8px 0 !important;
+}
+  
+.FormButton {
+  margin: 16px 0 !important;
+}

@@ -64,6 +64,11 @@ export default function TopBar(props) {
             <MenuItem component="a" href="/curated-lists">Curated Lists</MenuItem>
           </>
         }
+        { props.isAdmin &&
+          <>
+            <MenuItem component="a" href="/user-management">User Management</MenuItem>
+          </>
+        }
       </Menu>
 
       <div className={classes.linkDiv}>
@@ -77,6 +82,11 @@ export default function TopBar(props) {
         { props.specialUser &&
           <>
             <Link className={classes.linkItem} href="/curated-lists" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>Curated Lists</Link>
+          </>
+        }
+        { props.isAdmin &&
+          <>
+            <Link className={classes.linkItem} href="/user-management" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>User Management</Link>
           </>
         }
       </div>
