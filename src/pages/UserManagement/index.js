@@ -11,6 +11,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PersonIcon from '@mui/icons-material/Person';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
+import SearchIcon from '@mui/icons-material/Search';
 
 import Spinner from "../../components/Spinner";
 import Modal from "../../components/Modal";
@@ -45,7 +46,7 @@ const UserManagement = () => {
     const [isLoadingNormalUsers, setIsLoadingNormalUsers] = useState(false);
     const [normalUsers, setNormalUsers] = useState([]);
     const [normalUsersPage, setNormalUsersPage] = useState(1);
-    const [normalUsersCount, setNormalUsersCount] = useState(10);
+    const [normalUsersCount, setNormalUsersCount] = useState(20);
     const [normalUsersTotal, setNormalUsersTotal] = useState(0);
 
     const [isLoadingNewUsers, setIsLoadingNewUsers] = useState(false);
@@ -53,6 +54,12 @@ const UserManagement = () => {
     const [newUsersPage, setNewUsersPage] = useState(1);
     const [newUsersCount, setNewUsersCount] = useState(4);
     const [newUsersTotal, setNewUsersTotal] = useState(0);
+
+    const [isLoadingSearchUsers, setIsLoadingSearchUsers] = useState(false);
+    const [searchUsers, setSearchUsers] = useState([]);
+    const [searchUsersPage, setSearchUsersPage] = useState(1);
+    const [searchUsersCount, setSearchUsersCount] = useState(4);
+    const [searchUsersTotal, setSearchUsersTotal] = useState(0);
 
     const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
 
@@ -62,9 +69,11 @@ const UserManagement = () => {
 
     const [refresh, setRefresh] = useState(false);
 
+    const [search, setSearch] = useState("");
+
     const token = localStorage.getItem("tk");
 
-    const get = async (setIsLoading, page, count, role, setList, setTotal) => {
+    const get = async (setIsLoading, page, count, role, setList, setTotal, search=null) => {
         try {
             setIsLoading(true);
 
@@ -76,7 +85,9 @@ const UserManagement = () => {
                     params: {
                         page,
                         count,
-                        role
+                        role,
+                        byUsername: !!search,
+                        username: search
                     },
                 }
             );
@@ -101,13 +112,21 @@ const UserManagement = () => {
         setNewUsersCount(4);
         setAdminsCount(4);
         setCoachesCount(4);
-        setNormalUsersCount(8);
+        setNormalUsersCount(20);
+        setSearchUsersCount(4);
 
         get(setIsLoadingNewUsers, newUsersPage, newUsersCount, null, setNewUsers, setNewUsersTotal);
         get(setIsLoadingAdmins, adminsPage, adminsCount, "ADMIN", setAdmins, setAdminsTotal);
         get(setIsLoadingCoaches, coachesPage, coachesCount, "COACH", setCoaches, setCoachesTotal);
         get(setIsLoadingNormalUsers, normalUsersPage, normalUsersCount, "USER", setNormalUsers, setNormalUsersTotal);
     }, [refresh]);
+
+    useEffect(() => {
+        if (search === "") {
+            setSearchUsers([]);
+            setSearchUsersTotal(0);
+        }
+    }, [search]);
 
     const updateUser = async (userId, role=null) => {
         try {
@@ -152,7 +171,7 @@ const UserManagement = () => {
             <Grid container spacing={3} className={classes.grid}>
                 {userList.map(user => {
                     return (
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid item xs={12} sm={6} lg={3}>
                             <Card>
                                 <CardHeader
                                     avatar={
@@ -254,8 +273,42 @@ const UserManagement = () => {
             <div className={classes.container}>
                 <h1>User Management</h1>
 
+                <div style={{display: "flex", justifyContent: "center", alignContent: "center"}}>
+                    <TextField onChange={(e) => setSearch(e.target.value)} value={search} label="Search" variant="filled" />
+                    <IconButton disabled={!search} onClick={() => {
+                        setSearchUsersPage(1);
+                        get(setIsLoadingSearchUsers, 1, searchUsersCount, null, setSearchUsers, setSearchUsersTotal, search);
+                    }} aria-label="Search">
+                        <SearchIcon color={!search ? "" : "primary"} />
+                    </IconButton>
+                </div>
+
                 { isLoadingUpdate ? <Spinner /> :
-                    <>        
+                    <>
+                    {searchUsers && 
+                            <>
+                                <h2 className={classes.subtitle}></h2>
+                                {isLoadingSearchUsers ? <CircularProgress className={classes.spinner} /> :
+                                    <>
+                                        {renderCard(searchUsers)}
+                                        {searchUsersTotal > 1 &&
+                                            <Pagination
+                                                className={classes.pagination}  
+                                                count={searchUsersTotal} page={searchUsersPage}
+                                                onChange={(event, value) => {
+                                                    setSearchUsersPage(value);
+                                                    get(
+                                                        setIsLoadingSearchUsers, value, searchUsersCount, null,
+                                                        setSearchUsers, setSearchUsersTotal, search
+                                                    );
+                                                }}
+                                            />
+                                        }
+                                    </>
+                                }
+                            </>
+                        }
+
                         {newUsers && 
                             <>
                                 <h2 className={classes.subtitle}>{ROLES[null]}</h2>
