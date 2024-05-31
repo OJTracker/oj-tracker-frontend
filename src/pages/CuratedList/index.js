@@ -198,6 +198,13 @@ const CuratedList = () => {
             return;
         }
 
+        if (platform === Platforms.UVA && !Number.isInteger(externalId)) {
+            setExternalIdError(true);
+            setExternalIdHelperText("Invalid Id.");
+            setAddIsLoading(false);
+            return;
+        }
+
         setExternalIdError(false);
 
         let problemName = "";
@@ -235,6 +242,34 @@ const CuratedList = () => {
                 break;
 
             case Platforms.UVA:
+                try {
+                    const response = await uvaApi.get(`/problems/${externalId}`);
+
+                    if (response.status === 200) {
+                        if (response.data.result.length < 1) {
+                            setExternalIdError(true);
+                            setExternalIdHelperText("Invalid Id.");
+                            setAddIsLoading(false);
+                            return;
+                        }
+
+                        let problem = response.data.result[0];
+                        
+                        link = `https://onlinejudge.org/external/${
+                            Math.floor(externalId / 100)
+                        }/${externalId}.pdf`;
+
+                        problemName = problem.title;
+                    } else {
+                        alert("Unknown error");
+                        setAddIsLoading(false);
+                        return;
+                    }
+                } catch (error) {
+                    handleError(error, "\nProblem not added!");
+                    setAddIsLoading(false);
+                    return;
+                }
                 break;
 
             case Platforms.ATCODER:
