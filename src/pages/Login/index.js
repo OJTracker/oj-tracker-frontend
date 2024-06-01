@@ -97,7 +97,14 @@ const Login = (props) => {
 
             setIsLoading(false);
         } catch (error) {
-            handleError(error);
+            if (error.response && error.response.status === 401)
+                setCredentialsError(true);
+            else if (error.response && error.response.status === 412)
+                alert(
+                    "Your account has not yet been approved by an administrator.\n" +
+                    "Please wait and try again later."
+                );
+            else handleError(error);
             setIsLoading(false);
         }
     };
@@ -148,6 +155,9 @@ const Login = (props) => {
                                 className={classes.FormInput}
                                 error={credentialsError}
                                 helperText={credentialsError ? "Invalid credentials" : ""}
+                                inputProps={{
+                                    maxLength: 9,
+                                }}
                             />
                             <TextField
                                 label="Password"
@@ -158,6 +168,9 @@ const Login = (props) => {
                                 className={classes.FormInput}
                                 error={credentialsError}
                                 helperText={credentialsError ? "Invalid credentials" : ""}
+                                inputProps={{
+                                    maxLength: 9,
+                                }}
                             />
                             {
                                 showSuccess ? 
@@ -177,7 +190,16 @@ const Login = (props) => {
                                     </LoadingButton>
                                     <p>
                                         {signup ? "Already have an account? " : "Don't have an account? "}
-                                        <Link color="primary" onClick={() => setSignup(!signup)} className={classes.link}>
+                                        <Link
+                                            color="primary"
+                                            onClick={() => {
+                                                setUsername("");
+                                                setPassword("");
+                                                setCredentialsError(false);
+                                                setSignup(!signup);
+                                            }}
+                                            className={classes.link}
+                                        >
                                             {signup ? "Log in" : "Sign Up"}
                                         </Link>
                                     </p>
