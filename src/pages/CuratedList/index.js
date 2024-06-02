@@ -198,7 +198,7 @@ const CuratedList = () => {
             return;
         }
 
-        if (platform === Platforms.UVA && !Number.isInteger(externalId)) {
+        if (platform === Platforms.UVA && Number.isNaN(Number(externalId))) {
             setExternalIdError(true);
             setExternalIdHelperText("Invalid Id.");
             setAddIsLoading(false);
@@ -216,6 +216,13 @@ const CuratedList = () => {
                     let firstNonDigit = externalId.search(/[^0-9]/);
                     let contestId = externalId.slice(0, firstNonDigit);
                     let index = externalId.slice(firstNonDigit);
+
+                    if (contestId === "" || index === "") {
+                        setExternalIdError(true);
+                        setExternalIdHelperText("Invalid Id.");
+                        setAddIsLoading(false);
+                        return;
+                    }
 
                     const response = await codeforcesApi.get(`/problems?contestId=${contestId}&index=${index}`);
 
@@ -300,6 +307,34 @@ const CuratedList = () => {
                 break;
 
             case Platforms.SPOJ:
+                try {
+                    let _externalId = externalId.toUpperCase();
+
+                    const response = await spojApi.get(`/problems/${_externalId}`);
+
+                    if (response.status === 200) {
+                        if (response.data.result.length < 1) {
+                            setExternalIdError(true);
+                            setExternalIdHelperText("Invalid Id.");
+                            setAddIsLoading(false);
+                            return;
+                        }
+
+                        let problem = response.data.result[0];
+                        
+                        link = `https://www.spoj.com/problems/${_externalId}`;
+
+                        problemName = problem.problemName;
+                    } else {
+                        alert("Unknown error");
+                        setAddIsLoading(false);
+                        return;
+                    }
+                } catch (error) {
+                    handleError(error, "\nProblem not added!");
+                    setAddIsLoading(false);
+                    return;
+                }
                 break;
 
             case Platforms.CODECHEF:
