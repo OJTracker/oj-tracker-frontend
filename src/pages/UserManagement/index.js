@@ -21,6 +21,8 @@ import { handleError } from "../../utils/error";
 
 import { authApi } from "../../service/authApi";
 
+import { get } from "../../utils/user";
+
 import classes from "./user-management.module.css";
 
 const ROLES = {
@@ -72,39 +74,6 @@ const UserManagement = () => {
     const [search, setSearch] = useState("");
 
     const token = localStorage.getItem("tk");
-
-    const get = async (setIsLoading, page, count, role, setList, setTotal, search=null) => {
-        try {
-            setIsLoading(true);
-
-            const response = await authApi.get('/api/users',
-                {
-                    headers: {
-                        Authorization: 'Bearer ' + token
-                    },
-                    params: {
-                        page,
-                        count,
-                        role,
-                        byUsername: !!search,
-                        username: search
-                    },
-                }
-            );
-
-            if (response.status === 200) {
-                setList(response.data.result);
-                setTotal(response.data.totalPages);
-            } else {
-                alert("Unknown error");
-            }
-
-            setIsLoading(false);
-        } catch (error) {
-            handleError(error, "");
-            setIsLoading(false);
-        }
-    }
 
     useEffect(() => {
         if (!isAdmin()) window.location = "/";
@@ -285,7 +254,7 @@ const UserManagement = () => {
 
                 { isLoadingUpdate ? <Spinner /> :
                     <>
-                    {searchUsers && 
+                        {searchUsers && 
                             <>
                                 <h2 className={classes.subtitle}></h2>
                                 {isLoadingSearchUsers ? <CircularProgress className={classes.spinner} /> :
