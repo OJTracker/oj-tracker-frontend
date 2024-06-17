@@ -24,3 +24,21 @@
     width: 100px !important;
     padding: 19px 0px;
 }
+
+.Paper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    margin: 0;
+    padding: 16px;
+}
+
+.FormInput {
+    width: 100%;
+    margin: 8px 0 !important;
+}
+    
+.FormButton {
+    margin: 16px 0 !important;
+}

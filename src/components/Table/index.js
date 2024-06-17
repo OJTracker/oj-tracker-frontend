@@ -14,7 +14,7 @@ const MyTable = (props) => {
     <TableContainer>
       <Table
         key={generateRandomKey()}
-        sx={{ minWidth: 650, width: "90%", margin: "0 5% 0 5%" }}
+        sx={{ minWidth: props.small ? 0 : 650, width: "90%", margin: "0 5% 0 5%" }}
         aria-label="simple table"
       >
         <TableHead>
@@ -36,7 +36,7 @@ const MyTable = (props) => {
           {props.rows.map((row) => (
             <TableRow
               onClick={() => {
-                if(props.redirect) window.location = `/curated-list/${row["id"]}`; 
+                if(props.redirect) window.location = `/curated-list/${row["id"]}`;
                 if(props.newTab) window.open(row["link"], '_blank');
               }}
               key={generateRandomKey()}

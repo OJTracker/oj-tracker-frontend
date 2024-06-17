@@ -6,4 +6,12 @@ const Platforms = {
     CODECHEF: 'CODECHEF'
 };
 
-export { Platforms };
+const platforms = [
+    ["Codeforces", Platforms.CODEFORCES],
+    ["UVA", Platforms.UVA],
+    ["AtCoder", Platforms.ATCODER],
+    ["SPOJ", Platforms.SPOJ],
+    ["Codechef", Platforms.CODECHEF]
+];
+
+export { Platforms, platforms };

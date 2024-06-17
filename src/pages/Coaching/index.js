@@ -1,34 +1,48 @@
 import { useEffect, useState } from "react";
 
 import {
-    TextField, Card, CardHeader, Avatar, IconButton, Tooltip, Grid, Pagination, CircularProgress 
+    TextField, Card, CardHeader, Avatar, IconButton, Tooltip, Grid, Pagination, CircularProgress, Button,
+    Paper, FormControl, InputLabel, Select, MenuItem, Alert
 } from '@mui/material';
+
+import LoadingButton from "@mui/lab/LoadingButton";
 
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ReportIcon from '@mui/icons-material/Report';
 
 import Table from "../../components/Table";
-
+import Modal from "../../components/Modal";
 import Spinner from "../../components/Spinner";
 
 import { authApi } from "../../service/authApi";
 import { handleError } from "../../utils/error";
 
 import { get } from "../../utils/user";
+import { isSpecialUser } from "../../utils/auth";
+import { platforms } from "../../utils/enums";
+import { submitAdd } from "../../utils/problem";
 
 import classes from "./coaching.module.css";
 
-const tableColumns = [
+const userTableColumns = [
     "Name",
     "",
 ];
+
+const problemTableColumns = [
+    "Id",
+    "Platform",
+    "Name",
+    "",
+]
 
 const Coaching = () => {
     const [isLoadingSearchUsers, setIsLoadingSearchUsers] = useState(false);
     const [searchUsers, setSearchUsers] = useState([]);
     const [searchUsersPage, setSearchUsersPage] = useState(1);
-    const [searchUsersCount, setSearchUsersCount] = useState(4);
+    const [searchUsersCount, setSearchUsersCount] = useState(2);
     const [searchUsersTotal, setSearchUsersTotal] = useState(0);
 
     const [isLoadingUpdate, setIsLoadingUpdate] = useState(true);
@@ -38,8 +52,29 @@ const Coaching = () => {
     const [search, setSearch] = useState("");
 
     const [userCoaches, setUserCoaches] = useState([]);
+    const [problems, setProblems] = useState([]);
+
+    const [addIsShown, setAddIsShown] = useState(false);
+    const [addIsLoading, setAddIsLoading] = useState(false);
+
+    const [platform, setPlatform] = useState("");
+    const [externalId, setExternalId] = useState("");
+
+    const [platformError, setPlatformError] = useState(false);
+    const [externalIdError, setExternalIdError] = useState(false);
+
+    const [externalIdHelperText, setExternalIdHelperText] = useState("");
+
+    const [showSuccess, setShowSuccess] = useState(false);
+
+    const hideAddHandler = () => {
+        setRefresh(!refresh);
+        setAddIsShown(false);
+    }
 
     const token = localStorage.getItem("tk");
+
+    const isSpecial = isSpecialUser();
 
     const addCoach = async (coachId) => {
         try {
@@ -64,6 +99,24 @@ const Coaching = () => {
             handleError(error, "\nThe coach has not been added!");
             setIsLoadingUpdate(false);
         }
+    }
+
+    const addUser = (user) => {
+        var newUsers = userCoaches;
+        newUsers.push({
+            "id": user.userId,
+            "Name": user.username,
+            "": (
+                <div style={{ display: 'flex', justifyContent: 'end' }}>
+                    <IconButton style={{ color: 'red' }} onClick={() => removeUser(user.userId)}>
+                        <DeleteIcon />
+                    </IconButton>
+                </div>
+            )
+        });
+        setUserCoaches(newUsers);
+
+        setRefresh(!refresh);
     }
 
     const removeCoach = async (coachId) => {
@@ -91,17 +144,26 @@ const Coaching = () => {
         }
     }
 
-    useEffect(() => {
-        setIsLoadingUpdate(true);
+    const removeUser = (userId) => {
+        var newUsers = userCoaches.filter(uc => uc.id !== userId);
+        setUserCoaches(newUsers);
 
-        setSearchUsers([]);
-        setIsLoadingSearchUsers(false);
-        setSearchUsersCount(4);
-        setSearchUsersPage(1);
-        setSearchUsersTotal(0);
-        setSearch("");
+        setRefresh(!refresh);
+    }
+
+    useEffect(() => {
+        if (!isSpecial) {
+            setSearchUsers([]);
+            setIsLoadingSearchUsers(false);
+            setSearchUsersCount(2);
+            setSearchUsersPage(1);
+            setSearchUsersTotal(0);
+            setSearch("");
+        }
 
         const getCoaches = async () => {
+            setIsLoadingUpdate(true);
+
             try {
                 const response = await authApi.get('/api/coaching/user',
                     {
@@ -131,12 +193,13 @@ const Coaching = () => {
         
                 setIsLoadingUpdate(false);
             } catch (error) {
-                handleError(error, "");
+                handleError(error, "\nCoach List query unsuccessful!");
                 setIsLoadingUpdate(false);
             }
         }
 
-        getCoaches();
+        if (!isSpecial) getCoaches();
+        else setIsLoadingUpdate(false); 
     }, [refresh]);
 
     useEffect(() => {
@@ -151,7 +214,7 @@ const Coaching = () => {
             <Grid container spacing={3} className={classes.grid}>
                 {userList.map(user => {
                     return (
-                        <Grid item xs={12} sm={6} lg={3}>
+                        <Grid item xs={12} sm={isSpecial ? 12 : 6} lg={isSpecial ? 6 : 3}>
                             <Card>
                                 <CardHeader
                                     avatar={
@@ -164,7 +227,9 @@ const Coaching = () => {
                                     action={
                                         <Tooltip title="Add Coach" arrow>
                                             <IconButton
-                                                aria-label="Add Coach" onClick={() => addCoach(user["userId"])}>
+                                                aria-label="Add Coach" onClick={() => isSpecial ? addUser(user) : addCoach(user["userId"])}
+                                                disabled={userCoaches.find(uc => uc.id === user.userId) !== undefined}
+                                            >
                                                 <AddIcon style={{color: 'primary'}} />
                                             </IconButton>
                                         </Tooltip>
@@ -182,44 +247,103 @@ const Coaching = () => {
         <>
             <div className={classes.container}>
                 <h1>Coaching</h1>
+                { isSpecial && <h2>New training</h2> }
 
                 { isLoadingUpdate ? <Spinner /> :
-                    <>
-                        <div style={{display: "flex", justifyContent: "center", alignContent: "center"}}>
-                            <TextField onChange={(e) => setSearch(e.target.value)} value={search} label="Search" variant="filled" />
-                            <IconButton disabled={!search} onClick={() => {
-                                setSearchUsersPage(1);
-                                get(setIsLoadingSearchUsers, 1, searchUsersCount, null, setSearchUsers, setSearchUsersTotal, search, true);
-                            }} aria-label="Search">
-                                <SearchIcon color={!search ? "" : "primary"} />
-                            </IconButton>
-                        </div>
+                    <Grid container spacing={1}>
+                        <Grid item xs={isSpecial ? 6 : 12}>
+                            { isSpecial && <h2 style={{textAlign: "left"}}>Users</h2> }
 
-                        {searchUsers && 
-                            <>
-                                <h2 className={classes.subtitle}></h2>
-                                {isLoadingSearchUsers ? <CircularProgress className={classes.spinner} /> :
-                                    <>
-                                        {renderCard(searchUsers)}
-                                        {searchUsersTotal > 1 &&
-                                            <Pagination
-                                                className={classes.pagination}  
-                                                count={searchUsersTotal} page={searchUsersPage}
-                                                onChange={(event, value) => {
-                                                    setSearchUsersPage(value);
-                                                    get(
-                                                        setIsLoadingSearchUsers, value, searchUsersCount, null,
-                                                        setSearchUsers, setSearchUsersTotal, search, true
-                                                    );
-                                                }}
-                                            />
-                                        }
-                                    </>
-                                }
-                            </>
-                        }
-                        <Table columns={tableColumns} rows={userCoaches} dontShow={["id", "coachId"]} newTab={false} />
-                    </>
+                            <div style={{display: "flex", justifyContent: isSpecial ? "left" : "center", alignContent: "center"}}>
+                                <TextField onChange={(e) => setSearch(e.target.value)} value={search} label="Search" variant="filled" />
+                                <IconButton disabled={!search} onClick={() => {
+                                    setSearchUsersPage(1);
+                                    get(setIsLoadingSearchUsers, 1, searchUsersCount, null, setSearchUsers, setSearchUsersTotal, search, true);
+                                }} aria-label="Search">
+                                    <SearchIcon color={!search ? "" : "primary"} />
+                                </IconButton>
+                            </div>
+
+                            {searchUsers && 
+                                <>
+                                    <h2 className={classes.subtitle}></h2>
+                                    {isLoadingSearchUsers ? <CircularProgress className={classes.spinner} /> :
+                                        <>
+                                            {renderCard(searchUsers)}
+                                            {searchUsersTotal > 1 &&
+                                                <Pagination
+                                                    className={classes.pagination}  
+                                                    count={searchUsersTotal} page={searchUsersPage}
+                                                    onChange={(event, value) => {
+                                                        setSearchUsersPage(value);
+                                                        get(
+                                                            setIsLoadingSearchUsers, value, searchUsersCount, null,
+                                                            setSearchUsers, setSearchUsersTotal, search, true
+                                                        );
+                                                    }}
+                                                />
+                                            }
+                                        </>
+                                    }
+                                </>
+                            }
+                            <Table columns={userTableColumns} rows={userCoaches} dontShow={["id", "coachId"]} newTab={false} small={true} />
+                        </Grid>
+
+                        { isSpecial && <>
+                            {addIsShown && (
+                                <Modal onClose={hideAddHandler}>
+                                    <Paper className={classes.Paper}>
+                                        <h2>Add Problem</h2>
+                                        <FormControl fullWidth className={classes.FormInput}>
+                                            <InputLabel id="platform-select-label">Platform*</InputLabel>
+                                            <Select
+                                                labelId="platform-select-label"
+                                                id="platform-select"
+                                                value={platform}
+                                                label="Platform*"
+                                                error={platformError}
+                                                onChange={(e) => setPlatform(e.target.value)}
+                                            >
+                                                {platforms.map((platform, index) => (
+                                                    <MenuItem key={index} value={platform[1]}>
+                                                        {platform[0]}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                        <TextField
+                                            className={classes.FormInput}
+                                            onChange={(e) => setExternalId(e.target.value)}
+                                            value={externalId}
+                                            label={"Id*"}
+                                            error={externalIdError}
+                                            helperText={externalIdError ? externalIdHelperText : ""}
+                                        />
+                                        <LoadingButton
+                                            loading={addIsLoading}
+                                            variant="outlined"
+                                            className={classes.FormButton}
+                                            onClick={() => addProblem()}
+                                        >
+                                            Save
+                                        </LoadingButton>
+                                        {showSuccess && <Alert onClose={() => {setShowSuccess(false)}}>Problem added successfully!</Alert>}
+                                    </Paper>
+                                </Modal>
+                            )}
+                            <Grid item xs={isSpecial ? 6 : 12}>
+                                <h2 style={{textAlign: "left"}}>Problems</h2>
+                                <div style={{display: "flex"}}>
+                                    <Button variant="contained" endIcon={<AddIcon />} onClick={() => setAddIsShown(true)}>
+                                        Add Problem
+                                    </Button>
+                                </div>
+
+                                <Table columns={problemTableColumns} rows={problems} dontShow={["problemId", "link"]} newTab={false} small={true} />
+                            </Grid>
+                        </>}
+                    </Grid>
                 }
             </div>
         </>
