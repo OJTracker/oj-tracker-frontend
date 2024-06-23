@@ -3,15 +3,19 @@ import { codeforcesApi } from "../service/codeforcesApi";
 import { codechefApi } from "../service/codechefApi";
 import { spojApi } from "../service/spojApi";
 import { uvaApi } from "../service/uvaApi";
+import { authApi } from "../service/authApi";
 
 import { handleError } from "./error";
 import { Platforms } from "./enums";
+
+const token = localStorage.getItem("tk");
 
 const initAcceptedSubmissions = () => {
     localStorage.setItem("isUpdatingAcceptedSubmissions", false);
 
     for (var platform in Platforms) {
         localStorage.setItem(platform + "AcceptedSubmissions", []);
+        localStorage.setItem(platform + "AcceptedSubmissionsCount", 0);
         localStorage.setItem("isUpdating" + platform + "AcceptedSubmissions", false);
     }
 }
@@ -21,6 +25,7 @@ const clearAcceptedSubmissions = () => {
 
     for (var platform in Platforms) {
         localStorage.removeItem(platform + "AcceptedSubmissions");
+        localStorage.removeItem(platform + "AcceptedSubmissionsCount");
         localStorage.removeItem("isUpdating" + platform + "AcceptedSubmissions");
     }
 }
@@ -70,12 +75,88 @@ const getAcceptedUserSubmissionsAsync = async (api, handle, platform) => {
     localStorage.setItem("isUpdating" + platform + "AcceptedSubmissions", true);
 
     try {
-        const response = await api.get(`/submissions?handle=${handle}&acOnly=true`);
+        let acceptedList;
 
-        if (response.data.status === "OK") {
-            localStorage.setItem(platform + "AcceptedSubmissions", JSON.stringify(response.data.result));
+        const responseCount = await authApi.get(`/api/problems/user-accepted-submissions-count?platform=${platform}`, {
+            headers: {
+                Authorization: 'Bearer ' + token
+            },
+        });
+
+        let responseRealCountUrl = "";
+        switch (platform) {
+            case Platforms.ATCODER:
+                responseRealCountUrl = `/accepted-count?handle=${handle}`;
+                break;
+
+            case Platforms.CODEFORCES:
+                responseRealCountUrl = `/submissions?handle=${handle}&acOnly=true&justCount=true`
+                break;
+
+            case Platforms.UVA:
+                responseRealCountUrl = `/userInfo?handle=${handle}&justAcCount=true`;
+                break;
+
+            case Platforms.SPOJ:
+                responseRealCountUrl = `/submissions?handle=${handle}&acOnly=true&justCount=true`;
+                break;
+
+            case Platforms.CODECHEF:
+                // TO-DO
+                break;
+        }
+
+        const responseRealCount = await api.get(responseRealCountUrl);
+
+        const realCount = responseRealCount?.data?.result[0];
+        const count = responseCount?.data;
+        const storageCount = localStorage.getItem(platform + "AcceptedSubmissionsCount");
+
+        if (realCount !== undefined && realCount == count) {
+            if (realCount != storageCount) {
+                const response = await authApi.get('/api/problems/user-accepted-submissions', {
+                    headers: {
+                        Authorization: 'Bearer ' + token
+                    },
+                });
+
+                if (response.data !== undefined) {
+                    acceptedList = response.data.acceptedSubmissions;
+
+                    localStorage.setItem(platform + "AcceptedSubmissionsCount", acceptedList.length);
+                    localStorage.setItem(platform + "AcceptedSubmissions", JSON.stringify(acceptedList));
+                } else {
+                    alert("Unknown error");
+                }
+            }
+
+            localStorage.setItem("isUpdating" + platform + "AcceptedSubmissions", false);
+            return;
         } else {
-            alert("Unknown error");
+            const response = await api.get(`/submissions?handle=${handle}&acOnly=true`);
+
+            if (response.data.status === "OK") {
+                acceptedList = response.data.result;
+
+                localStorage.setItem(platform + "AcceptedSubmissionsCount", acceptedList.length);
+                localStorage.setItem(platform + "AcceptedSubmissions", JSON.stringify(acceptedList));
+            } else {
+                alert("Unknown error");
+            }
+        }
+
+        if (acceptedList) {
+            await authApi.post('/api/problems/user-accepted-submissions',
+                {
+                    platform,
+                    acceptedSubmissions: acceptedList
+                },
+                {
+                    headers: {
+                        Authorization: 'Bearer ' + token
+                    },
+                }
+            );
         }
     } catch (error) {
         handleError(error, "\nUnable to check " + platform + " solved problems");
