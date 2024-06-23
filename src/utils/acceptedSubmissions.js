@@ -8,8 +8,6 @@ import { authApi } from "../service/authApi";
 import { handleError } from "./error";
 import { Platforms } from "./enums";
 
-const token = localStorage.getItem("tk");
-
 const initAcceptedSubmissions = () => {
     localStorage.setItem("isUpdatingAcceptedSubmissions", false);
 
@@ -30,14 +28,14 @@ const clearAcceptedSubmissions = () => {
     }
 }
 
-const updateAcceptedSubmissions = async (codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle) => {
+const updateAcceptedSubmissions = async (codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle, token) => {
     localStorage.setItem("isUpdatingAcceptedSubmissions", true);
 
-    if (codeforcesHandle) getAcceptedUserSubmissionsAsync(codeforcesApi, codeforcesHandle, Platforms.CODEFORCES);
-    if (atcoderHandle) getAcceptedUserSubmissionsAsync(atcoderApi, atcoderHandle, Platforms.ATCODER);
-    if (codechefHandle) getAcceptedUserSubmissionsAsync(codechefApi, codechefHandle, Platforms.CODECHEF);
-    if (spojHandle) getAcceptedUserSubmissionsAsync(spojApi, spojHandle, Platforms.SPOJ);
-    if (uvaHandle) getAcceptedUserSubmissionsAsync(uvaApi, uvaHandle, Platforms.UVA);
+    if (codeforcesHandle) getAcceptedUserSubmissionsAsync(codeforcesApi, codeforcesHandle, Platforms.CODEFORCES, token);
+    if (atcoderHandle) getAcceptedUserSubmissionsAsync(atcoderApi, atcoderHandle, Platforms.ATCODER, token);
+    if (codechefHandle) getAcceptedUserSubmissionsAsync(codechefApi, codechefHandle, Platforms.CODECHEF, token);
+    if (spojHandle) getAcceptedUserSubmissionsAsync(spojApi, spojHandle, Platforms.SPOJ, token);
+    if (uvaHandle) getAcceptedUserSubmissionsAsync(uvaApi, uvaHandle, Platforms.UVA, token);
 }
 
 const calculateProgress = (amount, codeforcesProblems, uvaProblems, atcoderProblems, spojProblems, codechefProblems) => {
@@ -71,7 +69,7 @@ const checkAccepted = (platform, problemId) => {
     return JSON.parse(acceptedRaw).includes(problemId) ? true : false;
 }
 
-const getAcceptedUserSubmissionsAsync = async (api, handle, platform) => {
+const getAcceptedUserSubmissionsAsync = async (api, handle, platform, token) => {
     localStorage.setItem("isUpdating" + platform + "AcceptedSubmissions", true);
 
     try {
@@ -114,7 +112,7 @@ const getAcceptedUserSubmissionsAsync = async (api, handle, platform) => {
 
         if (realCount !== undefined && realCount == count) {
             if (realCount != storageCount) {
-                const response = await authApi.get('/api/problems/user-accepted-submissions', {
+                const response = await authApi.get(`/api/problems/user-accepted-submissions?platform=${platform}`, {
                     headers: {
                         Authorization: 'Bearer ' + token
                     },

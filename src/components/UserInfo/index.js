@@ -238,7 +238,7 @@ const UserInfo = (props) => {
       clearAcceptedSubmissions();
       initAcceptedSubmissions();
 
-      updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle);
+      updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle, token);
       await waitAcceptedSubmissions();
 
       window.location.reload();

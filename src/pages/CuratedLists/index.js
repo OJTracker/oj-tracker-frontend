@@ -139,7 +139,7 @@ const CuratedLists = () => {
     useEffect(() => {
         const updateListsAsync = async () => {
             const update = async () => {
-                updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle);
+                updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle, token);
                 await waitAcceptedSubmissions();
 
                 setIsLoading(true);

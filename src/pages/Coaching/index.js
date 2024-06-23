@@ -119,6 +119,33 @@ const Coaching = () => {
         setRefresh(!refresh);
     }
 
+    const addProblem = async () => {
+        const problem = await submitAdd(
+            setShowSuccess, setAddIsLoading, setPlatformError, setExternalIdError,
+            setExternalIdHelperText, platform, externalId
+        )
+
+        const newProblems = problems;
+        newProblems.push({
+            "Id": problem.externalId,
+            "Platform": problem.platform,
+            "Name": problem.problemName,
+            "": (
+                <div style={{ display: 'flex', justifyContent: 'end', alignItems: 'center' }}>
+                    <IconButton style={{ color: 'red' }} onClick={() => removeProblem(problem.externalId)}>
+                        <DeleteIcon />
+                    </IconButton>
+                    <Tooltip title="Add Coach" arrow>
+                        <ReportIcon />
+                    </Tooltip>
+                </div>
+            )
+        });
+        setProblems(newProblems);
+
+        setRefresh(!refresh);
+    }
+
     const removeCoach = async (coachId) => {
         try {
             setIsLoadingUpdate(true);
@@ -147,6 +174,13 @@ const Coaching = () => {
     const removeUser = (userId) => {
         var newUsers = userCoaches.filter(uc => uc.id !== userId);
         setUserCoaches(newUsers);
+
+        setRefresh(!refresh);
+    }
+
+    const removeProblem = (problemId) => {
+        var newProblems = problems.filter(p => p.Id !== problemId);
+        setProblems(newProblems);
 
         setRefresh(!refresh);
     }

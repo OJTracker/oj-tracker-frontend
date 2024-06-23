@@ -45,7 +45,8 @@ const Login = (props) => {
             const response = await authApi.post('/api/users/login', { username, password });
 
             if (response.status === 200) {
-                localStorage.setItem("tk", response.data.token);
+                const token = response.data.token;
+                localStorage.setItem("tk", token);
 
                 initAcceptedSubmissions();
 
@@ -86,7 +87,7 @@ const Login = (props) => {
                 dispatch(userActions.setUvaAvgDacu(uvaRanking));
 
                 setIsLoadingAcceptedSubmissions(true);
-                updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle);
+                updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle, token);
                 await waitAcceptedSubmissions();
 
                 window.location = "/";
