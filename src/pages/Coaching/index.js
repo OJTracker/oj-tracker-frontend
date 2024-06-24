@@ -21,7 +21,7 @@ import { handleError } from "../../utils/error";
 
 import { get } from "../../utils/user";
 import { isSpecialUser } from "../../utils/auth";
-import { platforms } from "../../utils/enums";
+import { Platforms, platforms } from "../../utils/enums";
 import { submitAdd } from "../../utils/problem";
 
 import classes from "./coaching.module.css";
@@ -52,7 +52,10 @@ const Coaching = () => {
     const [search, setSearch] = useState("");
 
     const [userCoaches, setUserCoaches] = useState([]);
+    const [userCoachesToDelete, setUserCoachesToDelete] = useState("");
+
     const [problems, setProblems] = useState([]);
+    const [problemToDelete, setProblemToDelete] = useState("");
 
     const [addIsShown, setAddIsShown] = useState(false);
     const [addIsLoading, setAddIsLoading] = useState(false);
@@ -101,7 +104,27 @@ const Coaching = () => {
         }
     }
 
-    const addUser = (user) => {
+    const addUser = async (user) => {
+        let done = {};
+
+        try {
+            const response = await authApi.get(`/api/problems/user-all-accepted-submissions/${user.userId}`, {
+                headers: {
+                    Authorization: 'Bearer ' + token
+                },
+            });
+
+            if (response.data !== undefined) {
+                done = response.data;
+            } else {
+                alert("Unknown error");
+                return;
+            }
+        } catch (error) {
+            handleError(error, "\nAccepted User Submissions query unsuccessful!");
+            return;
+        }
+
         var newUsers = userCoaches;
         newUsers.push({
             "id": user.userId,
@@ -112,7 +135,8 @@ const Coaching = () => {
                         <DeleteIcon />
                     </IconButton>
                 </div>
-            )
+            ),
+            "done": done
         });
         setUserCoaches(newUsers);
 
@@ -135,15 +159,27 @@ const Coaching = () => {
                     <IconButton style={{ color: 'red' }} onClick={() => removeProblem(problem.externalId)}>
                         <DeleteIcon />
                     </IconButton>
-                    <Tooltip title="Add Coach" arrow>
-                        <ReportIcon />
-                    </Tooltip>
+                    { problemDone(problem.platform, problem.externalId) && <Tooltip title="Done" arrow>
+                        <ReportIcon style={{ color: 'gold' }}/>
+                    </Tooltip> }
                 </div>
             )
         });
         setProblems(newProblems);
 
         setRefresh(!refresh);
+    }
+
+    const problemDone = (platform, problemId) => {
+        let problemIdStr = `${problemId}`;
+
+        switch (platform) {
+            case Platforms.CODEFORCES: return userCoaches.find(uc => uc.done && uc.done.codeforces && uc.done.codeforces.includes(problemIdStr));
+            case Platforms.ATCODER: return userCoaches.find(uc => uc.done && uc.done.atcoder && uc.done.atcoder.includes(problemIdStr));
+            case Platforms.CODECHEF: return userCoaches.find(uc => uc.done && uc.done.codechef && uc.done.codechef.includes(problemIdStr));
+            case Platforms.SPOJ: return userCoaches.find(uc => uc.done && uc.done.spoj && uc.done.spoj.includes(problemIdStr));
+            case Platforms.UVA: return userCoaches.find(uc => uc.done && uc.done.uva && uc.done.uva.includes(problemIdStr));
+        }
     }
 
     const removeCoach = async (coachId) => {
@@ -172,17 +208,11 @@ const Coaching = () => {
     }
 
     const removeUser = (userId) => {
-        var newUsers = userCoaches.filter(uc => uc.id !== userId);
-        setUserCoaches(newUsers);
-
-        setRefresh(!refresh);
+        setUserCoachesToDelete(userId);
     }
 
     const removeProblem = (problemId) => {
-        var newProblems = problems.filter(p => p.Id !== problemId);
-        setProblems(newProblems);
-
-        setRefresh(!refresh);
+        setProblemToDelete(problemId);
     }
 
     useEffect(() => {
@@ -242,6 +272,39 @@ const Coaching = () => {
             setSearchUsersTotal(0);
         }
     }, [search]);
+
+    useEffect(() => {
+        if (userCoachesToDelete) {
+            var newUsers = userCoaches.filter(uc => uc.id !== userCoachesToDelete);
+            setUserCoaches(newUsers);
+            setUserCoachesToDelete("");
+        }
+
+        if (problemToDelete) {
+            var newProblems = problems.filter(p => p.Id !== problemToDelete);
+            setProblems(newProblems)
+            setProblemToDelete("");
+        }
+    }, [userCoachesToDelete, problemToDelete]);
+
+    useEffect(() => {
+        var newProblems = problems.map(problem => {
+            problem[""] = (
+                <div style={{ display: 'flex', justifyContent: 'end', alignItems: 'center' }}>
+                    <IconButton style={{ color: 'red' }} onClick={() => removeProblem(problem.Id)}>
+                        <DeleteIcon />
+                    </IconButton>
+                    { problemDone(problem.Platform, problem.Id) && <Tooltip title="Done" arrow>
+                        <ReportIcon style={{ color: 'gold' }}/>
+                    </Tooltip> }
+                </div>
+            )
+
+            return { ...problem }
+        });
+
+        setProblems(newProblems);
+    }, [userCoaches, refresh]);
 
     const renderCard = (userList) => {
         return (
@@ -321,7 +384,7 @@ const Coaching = () => {
                                     }
                                 </>
                             }
-                            <Table columns={userTableColumns} rows={userCoaches} dontShow={["id", "coachId"]} newTab={false} small={true} />
+                            <Table columns={userTableColumns} rows={userCoaches} dontShow={["id", "done", "coachId"]} newTab={false} small={true} />
                         </Grid>
 
                         { isSpecial && <>
