@@ -40,6 +40,9 @@ ReactDOM.render(
           <PrivateRoute exact={false} path="/curated-list/:id" component={App} />
           <PrivateRoute exact path="/user-management" component={App} />
           <PrivateRoute exact path="/coaching" component={App} />
+          <PrivateRoute exact path="/coaching/:id" component={App} />
+          <PrivateRoute exact path="/coaching/:id/training/:index" component={App} />
+          <PrivateRoute exact path="/coaching/:id/training/:index/:successCode" component={App} />
           <Route exact path="/login" component={Login} />
           <Route exact path="/signup"><Login signup={true}/></Route>
         </Switch>

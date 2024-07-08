@@ -57,11 +57,13 @@ export default function TopBar(props) {
             <MenuItem component="a" href="/">User's Stats</MenuItem>
             <MenuItem component="a" href="/recommendation">Recommendation</MenuItem>
             <MenuItem component="a" href="/curated-lists">Curated Lists</MenuItem>
+            <MenuItem component="a" href="/coaching">Coaching</MenuItem>
           </>
         }
         { props.specialUser &&
           <>
             <MenuItem component="a" href="/curated-lists">Curated Lists</MenuItem>
+            <MenuItem component="a" href="/coaching/0">Coaching</MenuItem>
           </>
         }
         { props.isAdmin &&
@@ -77,11 +79,13 @@ export default function TopBar(props) {
             <Link className={classes.linkItem} href="/" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>User's Stats</Link>
             <Link className={classes.linkItem} href="/recommendation" underline="none" color="black">Recommendation</Link>
             <Link className={classes.linkItem} href="/curated-lists" underline="none" color="black">Curated Lists</Link>
+            <Link className={classes.linkItem} href="/coaching" underline="none" color="black">Coaching</Link>
           </>
         }
         { props.specialUser &&
           <>
             <Link className={classes.linkItem} href="/curated-lists" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>Curated Lists</Link>
+            <Link className={classes.linkItem} href="/coaching/0" underline="none" color="black">Coaching</Link>
           </>
         }
         { props.isAdmin &&

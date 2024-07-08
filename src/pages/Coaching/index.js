@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+
+import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import {
     TextField, Card, CardHeader, Avatar, IconButton, Tooltip, Grid, Pagination, CircularProgress, Button,
-    Paper, FormControl, InputLabel, Select, MenuItem, Alert
+    Paper, FormControl, InputLabel, Select, MenuItem, Alert, Snackbar
 } from '@mui/material';
 
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -11,6 +14,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ReportIcon from '@mui/icons-material/Report';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import NoCheckCircleIcon from '@mui/icons-material/RemoveCircle';
+import EditIcon from '@mui/icons-material/Edit';
 
 import Table from "../../components/Table";
 import Modal from "../../components/Modal";
@@ -20,9 +27,10 @@ import { authApi } from "../../service/authApi";
 import { handleError } from "../../utils/error";
 
 import { get } from "../../utils/user";
-import { isSpecialUser } from "../../utils/auth";
+import { canAct, getSubject, isSpecialUser } from "../../utils/auth";
 import { Platforms, platforms } from "../../utils/enums";
 import { submitAdd } from "../../utils/problem";
+import { checkAccepted, updateAcceptedSubmissions, waitAcceptedSubmissions } from "../../utils/acceptedSubmissions";
 
 import classes from "./coaching.module.css";
 
@@ -36,9 +44,23 @@ const problemTableColumns = [
     "Platform",
     "Name",
     "",
-]
+];
+
+const trainingTableColumns = [
+    "Index",
+    "Disclosure Link",
+    "Problems Number",
+];
 
 const Coaching = () => {
+    const codeforcesHandle = useSelector((state) => state.handles.codeforcesHandle);
+    const atcoderHandle = useSelector((state) => state.handles.atcoderHandle);
+    const uvaHandle = useSelector((state) => state.handles.uvaHandle);
+    const spojHandle = useSelector((state) => state.handles.spojHandle);
+    const codechefHandle = useSelector((state) => state.handles.codechefHandle);
+
+    const updateStarted = useRef(false);
+
     const [isLoadingSearchUsers, setIsLoadingSearchUsers] = useState(false);
     const [searchUsers, setSearchUsers] = useState([]);
     const [searchUsersPage, setSearchUsersPage] = useState(1);
@@ -56,6 +78,9 @@ const Coaching = () => {
 
     const [problems, setProblems] = useState([]);
     const [problemToDelete, setProblemToDelete] = useState("");
+    const [done, setDone] = useState(false);
+
+    const [trainings, setTrainings] = useState([]);
 
     const [addIsShown, setAddIsShown] = useState(false);
     const [addIsLoading, setAddIsLoading] = useState(false);
@@ -69,6 +94,16 @@ const Coaching = () => {
     const [externalIdHelperText, setExternalIdHelperText] = useState("");
 
     const [showSuccess, setShowSuccess] = useState(false);
+
+    const [open, setOpen] = useState(false);
+    const [message, setMessage] = useState("");
+
+    const [coachName, setCoachName] = useState("");
+
+    const [edit, setEdit] = useState(false);
+    const [trainingLink, setTrainingLink] = useState("");
+
+    const { id, index, successCode } = useParams();
 
     const hideAddHandler = () => {
         setRefresh(!refresh);
@@ -125,7 +160,7 @@ const Coaching = () => {
             return;
         }
 
-        var newUsers = userCoaches;
+        let newUsers = userCoaches;
         newUsers.push({
             "id": user.userId,
             "Name": user.username,
@@ -149,18 +184,21 @@ const Coaching = () => {
             setExternalIdHelperText, platform, externalId
         )
 
+        if (!problem) return;
+
         const newProblems = problems;
         newProblems.push({
             "Id": problem.externalId,
             "Platform": problem.platform,
             "Name": problem.problemName,
+            "Link": problem.link,
             "": (
                 <div style={{ display: 'flex', justifyContent: 'end', alignItems: 'center' }}>
                     <IconButton style={{ color: 'red' }} onClick={() => removeProblem(problem.externalId)}>
                         <DeleteIcon />
                     </IconButton>
                     { problemDone(problem.platform, problem.externalId) && <Tooltip title="Done" arrow>
-                        <ReportIcon style={{ color: 'gold' }}/>
+                        <ReportIcon id="done" style={{ color: 'gold' }}/>
                     </Tooltip> }
                 </div>
             )
@@ -215,6 +253,46 @@ const Coaching = () => {
         setProblemToDelete(problemId);
     }
 
+    const submitTraining = async () => {
+        const userIds = userCoaches.map(uc => uc.id);
+        const problemObjs = problems.map(p => ({ name: p.Name, platform: p.Platform, externalId: p.Id, link: p.Link }));
+
+        try {
+            setIsLoadingUpdate(true);
+
+            const response = await authApi.post(`/api/coaching`,
+                {
+                    users: userIds,
+                    problems: problemObjs,
+                    index: index,
+                },
+                {
+                    headers: {
+                        Authorization: 'Bearer ' + token
+                    }
+                }
+            );
+
+            if (response.status === 200) {
+                if (edit) window.location = `/coaching/${getSubject()}/training/${index}/2`;
+                else window.location = `/coaching/${getSubject()}/training/${response.data}/1`;
+            } else {
+                alert("Unknown error");
+                setIsLoadingUpdate(false);
+            }
+        } catch (error) {
+            handleError(error, "\nThe training has not been added!");
+            setIsLoadingUpdate(false);
+        }
+    }
+
+    const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text).then(() => {
+            setMessage("Link copied to clipboard!");
+            setOpen(true);
+        });
+    };
+
     useEffect(() => {
         if (!isSpecial) {
             setSearchUsers([]);
@@ -239,6 +317,11 @@ const Coaching = () => {
         
                 if (response.status === 200) {
                     response.data = response.data.map(item => {
+                        let link = `coaching/${item.coachId}`;
+
+                        item.coachName = (
+                            <a href={link}>{item.coachName}</a>
+                        )
                         item.delete = (
                             <div style={{ display: 'flex', justifyContent: 'end' }}>
                                 <IconButton style={{ color: 'red' }} onClick={() => removeCoach(item.id)}>
@@ -262,8 +345,133 @@ const Coaching = () => {
             }
         }
 
-        if (!isSpecial) getCoaches();
-        else setIsLoadingUpdate(false); 
+        const getTrainings = async () => {
+            setIsLoadingUpdate(true);
+
+            try {
+                const response = await authApi.get(`/api/coaching?coachId=${id}`,
+                    {
+                        headers: {
+                            Authorization: 'Bearer ' + token
+                        },
+                    }
+                );
+
+                if (response.status === 200) {
+                    response.data.trainings = response.data.trainings.map(item => {
+                        const link = `${window.location.host}/coaching/${id != 0 ? id : getSubject()}/training/${item.index}`;
+
+                        let row = {
+                            "Index": `#${item.index}`,
+                            "Disclosure Link": (
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <a style={{ color: '#00a6eb', marginRight: '1%' }} href={link}>{link}</a>
+                                    <IconButton onClick={() => copyToClipboard(link)}>
+                                        <ContentCopyIcon />
+                                    </IconButton>
+                                </div>
+                            ),
+                            "Problems Number": item.problemsNumber
+                        };
+
+                        if (isSpecial && !trainingTableColumns.includes("")) trainingTableColumns.push("");
+
+                        return !isSpecial && !canAct(response.data.coach) ? row : {
+                            ...row,
+                            "": (
+                                <div style={{ display: 'flex', justifyContent: 'end' }}>
+                                    <IconButton style={{ color: 'red' }} onClick={() => null}>
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </div>
+                            )
+                        };
+                    });
+
+                    setCoachName(response.data.coach);
+                    setTrainings(response.data.trainings);
+                } else {
+                    alert("Unknown error");
+                }
+
+                setIsLoadingUpdate(false);
+            } catch (error) {
+                handleError(error, "\nTraining List query unsuccessful!");
+                setIsLoadingUpdate(false);
+            }
+        }
+
+        const getTraining = async () => {
+            setIsLoadingUpdate(true);
+
+            try {
+                const response = await authApi.get(`/api/coaching/${index}`,
+                    {
+                        headers: {
+                            Authorization: 'Bearer ' + token
+                        },
+                    }
+                );
+
+                if (response.status === 200) {
+                    if (isSpecial && canAct(response.data.coach)) {
+                        setEdit(true);
+                        setTrainingLink(`${window.location.host}/coaching/${getSubject()}/training/${index}`);
+
+                        for (let user of response.data.users) {
+                            await addUser(user);
+                            setRefresh(!refresh);
+                        }
+
+                        response.data.problems = response.data.problems.map(problem => {
+                            return {
+                                "Id": problem.externalId,
+                                "Platform": problem.platform,
+                                "Name": problem.name,
+                                "Link": problem.link,
+                                "": (
+                                    <div style={{ display: 'flex', justifyContent: 'end', alignItems: 'center' }}>
+                                        <IconButton style={{ color: 'red' }} onClick={() => removeProblem(problem.externalId)}>
+                                            <DeleteIcon />
+                                        </IconButton>
+                                        { problemDone(problem.platform, problem.externalId) && <Tooltip title="Done" arrow>
+                                            <ReportIcon id="done" style={{ color: 'gold' }}/>
+                                        </Tooltip> }
+                                    </div>
+                                )
+                            }
+                        });
+                        setProblems(response.data.problems);
+                    } else {
+                        response.data.problems = response.data.problems.map(item => {
+                            let done = checkAccepted(item.platform, item.externalId) ?
+                                (<CheckCircleIcon style={{ color: 'green' }} />) : (<NoCheckCircleIcon style={{ color: 'darkgrey' }} />)
+    
+                            return {
+                                ...item,
+                                done
+                            };
+                        });
+    
+                        setCoachName(response.data.coach);
+                        setProblems(response.data.problems);
+                    }
+                } else {
+                    alert("Unknown error");
+                }
+
+                setIsLoadingUpdate(false);
+            } catch (error) {
+                handleError(error, "\nTraining query unsuccessful!");
+                setIsLoadingUpdate(false);
+            }   
+        }
+
+        if (edit) return;
+        if (id && index) getTraining();
+        else if (id) getTrainings();
+        else if (!isSpecial) getCoaches();
+        else setIsLoadingUpdate(false);
     }, [refresh]);
 
     useEffect(() => {
@@ -295,7 +503,7 @@ const Coaching = () => {
                         <DeleteIcon />
                     </IconButton>
                     { problemDone(problem.Platform, problem.Id) && <Tooltip title="Done" arrow>
-                        <ReportIcon style={{ color: 'gold' }}/>
+                        <ReportIcon id="done" style={{ color: 'gold' }}/>
                     </Tooltip> }
                 </div>
             )
@@ -305,6 +513,60 @@ const Coaching = () => {
 
         setProblems(newProblems);
     }, [userCoaches, refresh]);
+
+    useEffect(() => {
+        setDone(document.querySelector('#done') != null);
+    }, [problems]);
+
+    useEffect(() => {
+        const updateListAsync = async () => {
+            const update = async () => {
+                updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle, token);
+                await waitAcceptedSubmissions();
+    
+                setIsLoadingUpdate(true);
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                var newList = problems;
+                newList = newList.map(item => {
+                    let done = checkAccepted(item.platform, item.externalId) ?
+                        (<CheckCircleIcon style={{ color: 'green' }} />) : (<NoCheckCircleIcon style={{ color: 'darkgrey' }} />)
+
+                    return {
+                        ...item,
+                        done
+                    };
+                })
+
+                setProblems(newList);
+                setIsLoadingUpdate(false);
+            }
+
+            updateStarted.current = true;
+
+            await update();
+            const updateInterval = setInterval(async () => {
+                await update();
+            },  5 * 60 * 1000);
+
+            return () => clearInterval(updateInterval);
+        }
+
+        if (problems.length && !isSpecial && !updateStarted.current) updateListAsync();
+    }, [problems]);
+
+    useEffect(() => {
+        if (successCode) {
+            if (successCode === "1") {
+                setMessage("Training successfully added!");
+            } else {
+                setMessage("Training successfully edited!");
+            }
+
+            setOpen(true);
+        }
+    }, []);
 
     const renderCard = (userList) => {
         return (
@@ -341,10 +603,71 @@ const Coaching = () => {
     }
 
     return (
-        <>
-            <div className={classes.container}>
-                <h1>Coaching</h1>
-                { isSpecial && <h2>New training</h2> }
+        <div className={classes.container}>
+            <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
+                <Alert
+                    onClose={() => setOpen(false)}
+                    severity="success"
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {message}
+                </Alert>
+            </Snackbar>
+            <h1>Coaching</h1>
+
+            { id && !edit ?
+            <>
+                { !index ?
+                <>
+                    { !isSpecial && !canAct(coachName) ? <h2>{ coachName }</h2> :
+                        <Button variant="contained" endIcon={<AddIcon />} onClick={() => window.location = "/coaching" }>
+                            New Training
+                        </Button>
+                    }
+                    { isLoadingUpdate ?
+                        <Spinner /> :
+                        <Table columns={trainingTableColumns} rows={trainings} dontShow={["id", "done", "coachId"]} />
+                    }
+                </>
+                :
+                <>
+                { isLoadingUpdate ?
+                    <Spinner /> :
+                    <>
+                        <h2>{coachName} - #{index}</h2>
+                        <Table columns={problemTableColumns} rows={problems} dontShow={["problemId", "link"]} newTab={true}/>
+                    </>
+                }
+                </> }
+            </>
+            :
+            <>
+                { isSpecial &&
+                    <>
+                        {edit && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <h2 style={{ marginRight: edit ?'1%' : '0' }}>{edit ? `Edit training #${index}` : "New training"}</h2>
+                            <IconButton onClick={() => copyToClipboard(trainingLink)}>
+                                <ContentCopyIcon />
+                            </IconButton>
+                        </div>}
+                        { (done && !isLoadingUpdate) && <h3 style={{color: 'gold'}}>There are problems already done by one or more users</h3> }
+                        { (userCoaches.length > 0 && problems.length > 0 && !isLoadingUpdate) &&
+                            <div>
+                                <Button variant="contained" endIcon={edit ? <EditIcon /> : <AddIcon/>} onClick={() => submitTraining()}
+                                        style={{ backgroundColor: edit ? 'green' : '', color: 'white', marginRight: edit ? '5px' : '0px' }}
+                                >
+                                    {edit ? "Submit" : "Add New Training"}
+                                </Button>
+                                { edit && <Button variant="contained" endIcon={<DeleteIcon />} onClick={() => null} 
+                                        style={{ backgroundColor: 'red', color: 'white' }}
+                                >
+                                    Delete
+                                </Button>}
+                            </div>
+                        }
+                    </>
+                }
 
                 { isLoadingUpdate ? <Spinner /> :
                     <Grid container spacing={1}>
@@ -384,7 +707,7 @@ const Coaching = () => {
                                     }
                                 </>
                             }
-                            <Table columns={userTableColumns} rows={userCoaches} dontShow={["id", "done", "coachId"]} newTab={false} small={true} />
+                            <Table columns={userTableColumns} rows={userCoaches} dontShow={["id", "done", "coachId"]} small={true} />
                         </Grid>
 
                         { isSpecial && <>
@@ -437,13 +760,13 @@ const Coaching = () => {
                                     </Button>
                                 </div>
 
-                                <Table columns={problemTableColumns} rows={problems} dontShow={["problemId", "link"]} newTab={false} small={true} />
+                                <Table columns={problemTableColumns} rows={problems} dontShow={["problemId", "Link"]} newTab={false} small={true} />
                             </Grid>
                         </>}
                     </Grid>
                 }
-            </div>
-        </>
+            </>}
+        </div>
     )
 }
 

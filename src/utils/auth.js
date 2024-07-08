@@ -46,11 +46,19 @@ const getUsername = () => {
     return decodedToken.upn;
 }
 
+const getSubject = () => {
+    const token = localStorage.getItem("tk");
+    if (token === null) window.location = "/";
+
+    const decodedToken = jwt_decode(token);
+    return decodedToken.sub;
+}
+
 const getUserRole = () => {
     const token = localStorage.getItem("tk");
     if (token === null) window.location = "/";
 
-    const decodedToken = jwt_decode(token); 
+    const decodedToken = jwt_decode(token);
     return decodedToken.groups[0];
 }
 
@@ -68,4 +76,4 @@ const canAct = (author) => {
     }
 }
 
-export { isAuth, isSpecialUser, getUserRole, getUsername, canAct, isAdmin };
+export { isAuth, isSpecialUser, getUserRole, getUsername, canAct, isAdmin, getSubject };

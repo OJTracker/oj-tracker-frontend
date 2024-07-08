@@ -20,7 +20,10 @@ const Routes = () => {
       <Route path="/curated-lists" exact component={CuratedLists}/>
       <Route path="/curated-list/:id" component={CuratedList}/>
       <Route path="/user-management" component={UserManagement}/>
-      <Route path="/coaching" component={Coaching}/>
+      <Route exact path="/coaching" component={Coaching}/>
+      <Route exact path="/coaching/:id" component={Coaching}/>
+      <Route exact path="/coaching/:id/training/:index" component={Coaching}/>
+      <Route exact path="/coaching/:id/training/:index/:successCode" component={Coaching}/>
     </Router>
   )
 }
