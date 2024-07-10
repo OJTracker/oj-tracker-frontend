@@ -99,9 +99,13 @@ const Coaching = () => {
     const [message, setMessage] = useState("");
 
     const [coachName, setCoachName] = useState("");
+    const [trainingName, setTrainingName] = useState("");
 
     const [edit, setEdit] = useState(false);
     const [trainingLink, setTrainingLink] = useState("");
+
+    const [name, setName] = useState("");
+    const [nameError, setNameError] = useState(false);
 
     const { id, index, successCode } = useParams();
 
@@ -253,6 +257,29 @@ const Coaching = () => {
         setProblemToDelete(problemId);
     }
 
+    const deleteTraining = async (index) => {
+        try {
+            setIsLoadingUpdate(true);
+
+            const response = await authApi.delete(`/api/coaching/${index}`,
+                {
+                    headers: {
+                        Authorization: 'Bearer ' + token
+                    }
+                }
+            );
+            if (response.status === 200) {
+                window.location = "/coaching/0";
+            } else {
+                alert("Unknown error");
+                setIsLoadingUpdate(false);
+            }
+        } catch (error) {
+            handleError(error, "\nThe training has not been deleted!");
+            setIsLoadingUpdate(false);
+        }
+    }
+
     const submitTraining = async () => {
         const userIds = userCoaches.map(uc => uc.id);
         const problemObjs = problems.map(p => ({ name: p.Name, platform: p.Platform, externalId: p.Id, link: p.Link }));
@@ -260,11 +287,18 @@ const Coaching = () => {
         try {
             setIsLoadingUpdate(true);
 
+            if (name === "") {
+                setNameError(true);
+                setIsLoadingUpdate(false);
+                return;
+            }
+
             const response = await authApi.post(`/api/coaching`,
                 {
                     users: userIds,
                     problems: problemObjs,
                     index: index,
+                    name: name,
                 },
                 {
                     headers: {
@@ -359,13 +393,13 @@ const Coaching = () => {
 
                 if (response.status === 200) {
                     response.data.trainings = response.data.trainings.map(item => {
-                        const link = `${window.location.host}/coaching/${id != 0 ? id : getSubject()}/training/${item.index}`;
+                        const link = `http://${window.location.host}/coaching/${id != 0 ? id : getSubject()}/training/${item.index}`;
 
                         let row = {
                             "Index": `#${item.index}`,
                             "Disclosure Link": (
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <a style={{ color: '#00a6eb', marginRight: '1%' }} href={link}>{link}</a>
+                                    <a style={{ color: '#00a6eb', marginRight: '1%' }} href={link}>{item.name}</a>
                                     <IconButton onClick={() => copyToClipboard(link)}>
                                         <ContentCopyIcon />
                                     </IconButton>
@@ -380,7 +414,7 @@ const Coaching = () => {
                             ...row,
                             "": (
                                 <div style={{ display: 'flex', justifyContent: 'end' }}>
-                                    <IconButton style={{ color: 'red' }} onClick={() => null}>
+                                    <IconButton style={{ color: 'red' }} onClick={() => deleteTraining(item.index)}> 
                                         <DeleteIcon />
                                     </IconButton>
                                 </div>
@@ -442,6 +476,8 @@ const Coaching = () => {
                             }
                         });
                         setProblems(response.data.problems);
+
+                        setName(response.data.name);
                     } else {
                         response.data.problems = response.data.problems.map(item => {
                             let done = checkAccepted(item.platform, item.externalId) ?
@@ -454,6 +490,7 @@ const Coaching = () => {
                         });
     
                         setCoachName(response.data.coach);
+                        setTrainingName(response.data.name);
                         setProblems(response.data.problems);
                     }
                 } else {
@@ -635,7 +672,7 @@ const Coaching = () => {
                 { isLoadingUpdate ?
                     <Spinner /> :
                     <>
-                        <h2>{coachName} - #{index}</h2>
+                        <h2>#{index} - {trainingName} - {coachName}</h2>
                         <Table columns={problemTableColumns} rows={problems} dontShow={["problemId", "link"]} newTab={true}/>
                     </>
                 }
@@ -659,7 +696,7 @@ const Coaching = () => {
                                 >
                                     {edit ? "Submit" : "Add New Training"}
                                 </Button>
-                                { edit && <Button variant="contained" endIcon={<DeleteIcon />} onClick={() => null} 
+                                { edit && <Button variant="contained" endIcon={<DeleteIcon />} onClick={() => deleteTraining(index)}
                                         style={{ backgroundColor: 'red', color: 'white' }}
                                 >
                                     Delete
@@ -670,6 +707,15 @@ const Coaching = () => {
                 }
 
                 { isLoadingUpdate ? <Spinner /> :
+                    <>
+                    { isSpecial && <TextField
+                        style={{marginTop: "1%", width: "500px"}}
+                        onChange={(e) => setName(e.target.value)}
+                        value={name}
+                        label={"Name*"}
+                        error={nameError}
+                        multiline
+                    />}
                     <Grid container spacing={1}>
                         <Grid item xs={isSpecial ? 6 : 12}>
                             { isSpecial && <h2 style={{textAlign: "left"}}>Users</h2> }
@@ -764,6 +810,7 @@ const Coaching = () => {
                             </Grid>
                         </>}
                     </Grid>
+                    </>
                 }
             </>}
         </div>
