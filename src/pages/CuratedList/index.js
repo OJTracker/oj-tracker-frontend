@@ -216,6 +216,7 @@ const CuratedList = () => {
                                     href={item.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    data-umami-event={`${item.platform}-problem-link`}
                                   >
                                     {item.externalId}
                                   </a>)

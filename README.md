@@ -24,6 +24,8 @@ REACT_APP_CODEFORCES_API_URL=URL da API para extração de dados do Codeforces.
 REACT_APP_UVA_API_URL=URL da API para extração de dados do UvA Online Judge.
 REACT_APP_SPOJ_API_URL=URL da API para extração de dados do SPOJ.
 REACT_APP_CODECHEF_API_URL=URL da API para extração de dados do Codechef.
+
+PORT=Porta para react-scripts start.
 ```
 
 ## Via Docker

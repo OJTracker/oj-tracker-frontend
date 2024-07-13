@@ -37,7 +37,10 @@ const MyTable = (props) => {
             <TableRow
               onClick={() => {
                 if(props.redirect) window.location = `/curated-list/${row["id"]}`;
-                if(props.newTab) window.open(row["link"], '_blank');
+                if(props.newTab) {
+                  window.umami.track(`user-${row["platform"]}-problem-link`);
+                  window.open(row["link"], '_blank');
+                }
               }}
               key={generateRandomKey()}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
