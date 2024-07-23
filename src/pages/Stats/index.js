@@ -265,7 +265,7 @@ const Stats = () => {
     if (onlineJudge === "Online Judge" && shouldGetSubmissions) getUvaData();
     if (onlineJudge === "Atcoder" && shouldGetSubmissions) getAtcoderData();
     if (onlineJudge === "Spoj" && shouldGetSubmissions) getSpojData();
-    if (onlineJudge === "Codechef" && shouldGetSubmissions) getCodechefData();
+    // TO-DO if (onlineJudge === "Codechef" && shouldGetSubmissions) getCodechefData();
   }, [
     page,
     verdict,
@@ -509,7 +509,7 @@ const Stats = () => {
       if (!!atcoderHandle) await getAtcoderUserStats();
       if (!!uvaHandle) await getUvaUserStats();
       if (!!spojHandle) await getSpojUserStats();
-      if (!!codechefHandle) await getCodechefUserStats();
+      // TO-DO if (!!codechefHandle) await getCodechefUserStats();
 
       setIsLoading(false);
     };

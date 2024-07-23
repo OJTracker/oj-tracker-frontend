@@ -101,7 +101,8 @@ const getAcceptedUserSubmissionsAsync = async (api, handle, platform, token) => 
 
             case Platforms.CODECHEF:
                 // TO-DO
-                break;
+                localStorage.setItem("isUpdating" + platform + "AcceptedSubmissions", false);
+                return;
         }
 
         const responseRealCount = await api.get(responseRealCountUrl);
