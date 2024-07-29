@@ -76,7 +76,7 @@ const UserManagement = () => {
     const token = localStorage.getItem("tk");
 
     useEffect(() => {
-        if (!isAdmin()) window.location = "/";
+        if (!isAdmin()) window.location = "/ojtracker";
 
         setNewUsersCount(4);
         setAdminsCount(4);

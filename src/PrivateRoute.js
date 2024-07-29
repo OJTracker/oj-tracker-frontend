@@ -14,7 +14,7 @@ const PrivateRoute = ({ component, exact, path }) => {
 
     if (isAuth()) {
         if (isSpecialUser() && path === "/") {
-            window.location = "/curated-lists";
+            window.location = "/ojtracker/curated-lists";
             return;
         }
 
@@ -30,7 +30,7 @@ const PrivateRoute = ({ component, exact, path }) => {
     dispatch(handleActions.clearHandles());
     dispatch(userActions.clearUserInfo());
 
-    window.location = "/login";
+    window.location = "/ojtracker/login";
 };
 
 PrivateRoute.propTypes = {

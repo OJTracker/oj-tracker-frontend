@@ -33,7 +33,7 @@ export default function TopBar(props) {
     dispatch(handleActions.clearHandles());
     dispatch(userActions.clearUserInfo());
 
-    window.location = "/login";
+    window.location = "/ojtracker/login";
   }
 
   return (
@@ -54,21 +54,21 @@ export default function TopBar(props) {
       >
         { !props.specialUser &&
           <>
-            <MenuItem component="a" href="/">User's Stats</MenuItem>
-            <MenuItem component="a" href="/recommendation">Recommendation</MenuItem>
-            <MenuItem component="a" href="/curated-lists">Curated Lists</MenuItem>
-            <MenuItem component="a" href="/coaching">Coaching</MenuItem>
+            <MenuItem component="a" href="/ojtracker">User's Stats</MenuItem>
+            <MenuItem component="a" href="/ojtracker/recommendation">Recommendation</MenuItem>
+            <MenuItem component="a" href="/ojtracker/curated-lists">Curated Lists</MenuItem>
+            <MenuItem component="a" href="/ojtracker/coaching">Coaching</MenuItem>
           </>
         }
         { props.specialUser &&
           <>
-            <MenuItem component="a" href="/curated-lists">Curated Lists</MenuItem>
-            <MenuItem component="a" href="/coaching/0">Coaching</MenuItem>
+            <MenuItem component="a" href="/ojtracker/curated-lists">Curated Lists</MenuItem>
+            <MenuItem component="a" href="/ojtracker/coaching/0">Coaching</MenuItem>
           </>
         }
         { props.isAdmin &&
           <>
-            <MenuItem component="a" href="/user-management">User Management</MenuItem>
+            <MenuItem component="a" href="/ojtracker/user-management">User Management</MenuItem>
           </>
         }
       </Menu>
@@ -76,21 +76,21 @@ export default function TopBar(props) {
       <div className={classes.linkDiv}>
         { !props.specialUser &&
           <>
-            <Link className={classes.linkItem} href="/" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>User's Stats</Link>
-            <Link className={classes.linkItem} href="/recommendation" underline="none" color="black">Recommendation</Link>
-            <Link className={classes.linkItem} href="/curated-lists" underline="none" color="black">Curated Lists</Link>
-            <Link className={classes.linkItem} href="/coaching" underline="none" color="black">Coaching</Link>
+            <Link className={classes.linkItem} href="/ojtracker" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>User's Stats</Link>
+            <Link className={classes.linkItem} href="/ojtracker/recommendation" underline="none" color="black">Recommendation</Link>
+            <Link className={classes.linkItem} href="/ojtracker/curated-lists" underline="none" color="black">Curated Lists</Link>
+            <Link className={classes.linkItem} href="/ojtracker/coaching" underline="none" color="black">Coaching</Link>
           </>
         }
         { props.specialUser &&
           <>
-            <Link className={classes.linkItem} href="/curated-lists" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>Curated Lists</Link>
-            <Link className={classes.linkItem} href="/coaching/0" underline="none" color="black">Coaching</Link>
+            <Link className={classes.linkItem} href="/ojtracker/curated-lists" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>Curated Lists</Link>
+            <Link className={classes.linkItem} href="/ojtracker/coaching/0" underline="none" color="black">Coaching</Link>
           </>
         }
         { props.isAdmin &&
           <>
-            <Link className={classes.linkItem} href="/user-management" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>User Management</Link>
+            <Link className={classes.linkItem} href="/ojtracker/user-management" underline="none" color="black" style={{margin: "0px 0px 0px 16px"}}>User Management</Link>
           </>
         }
       </div>

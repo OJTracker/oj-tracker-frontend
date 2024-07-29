@@ -31,7 +31,7 @@ const theme = createTheme({
 ReactDOM.render(
   <Provider store={store}>
      <ThemeProvider theme={theme}>
-        <Router>
+        <Router basename="/ojtracker">
           <Switch>
           <PrivateRoute exact path="/" component={App} />
           <PrivateRoute exact path="/stats" component={App} />

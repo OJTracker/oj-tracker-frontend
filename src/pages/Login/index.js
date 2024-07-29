@@ -90,7 +90,7 @@ const Login = (props) => {
                 updateAcceptedSubmissions(codeforcesHandle, atcoderHandle, uvaHandle, spojHandle, codechefHandle, token);
                 await waitAcceptedSubmissions();
 
-                window.location = "/";
+                window.location = "/ojtracker";
             } else {
                 alert("Unknown error");
                 setCredentialsError(true);

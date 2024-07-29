@@ -1,10 +1,10 @@
-import jwt_decode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 const isAuth = () => {
     const token = localStorage.getItem("tk");
     if (token === null) return false;
 
-    const decodedToken = jwt_decode(token);
+    const decodedToken = jwtDecode(token);
 
     const currentTime = Math.floor(Date.now() / 1000);
     if (decodedToken.exp > currentTime) {
@@ -18,7 +18,7 @@ const isSpecialUser = () => {
     const token = localStorage.getItem("tk");
     if (token === null) return false;
 
-    const decodedToken = jwt_decode(token);
+    const decodedToken = jwtDecode(token);
     if (["ADMIN", "COACH"].includes(decodedToken.groups[0])){
         return true;
     } else {
@@ -30,7 +30,7 @@ const isAdmin = () => {
     const token = localStorage.getItem("tk");
     if (token === null) return false;
 
-    const decodedToken = jwt_decode(token);
+    const decodedToken = jwtDecode(token);
     if (["ADMIN"].includes(decodedToken.groups[0])) {
         return true;
     } else {
@@ -40,33 +40,33 @@ const isAdmin = () => {
 
 const getUsername = () => {
     const token = localStorage.getItem("tk");
-    if (token === null) window.location = "/";
+    if (token === null) window.location = "/ojtracker";
 
-    const decodedToken = jwt_decode(token);
+    const decodedToken = jwtDecode(token);
     return decodedToken.upn;
 }
 
 const getSubject = () => {
     const token = localStorage.getItem("tk");
-    if (token === null) window.location = "/";
+    if (token === null) window.location = "/ojtracker";
 
-    const decodedToken = jwt_decode(token);
+    const decodedToken = jwtDecode(token);
     return decodedToken.sub;
 }
 
 const getUserRole = () => {
     const token = localStorage.getItem("tk");
-    if (token === null) window.location = "/";
+    if (token === null) window.location = "/ojtracker";
 
-    const decodedToken = jwt_decode(token);
+    const decodedToken = jwtDecode(token);
     return decodedToken.groups[0];
 }
 
 const canAct = (author) => {
     const token = localStorage.getItem("tk");
-    if (token === null) window.location = "/";
+    if (token === null) window.location = "/ojtracker";
 
-    const decodedToken = jwt_decode(token);
+    const decodedToken = jwtDecode(token);
     if (["ADMIN"].includes(decodedToken.groups[0])){
         return true;
     } else if (["COACH"].includes(decodedToken.groups[0]) && author === decodedToken.upn) {

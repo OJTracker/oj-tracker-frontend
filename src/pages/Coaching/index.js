@@ -269,7 +269,7 @@ const Coaching = () => {
                 }
             );
             if (response.status === 200) {
-                window.location = "/coaching/0";
+                window.location = "/ojtracker/coaching/0";
             } else {
                 alert("Unknown error");
                 setIsLoadingUpdate(false);
@@ -308,8 +308,8 @@ const Coaching = () => {
             );
 
             if (response.status === 200) {
-                if (edit) window.location = `/coaching/${getSubject()}/training/${index}/2`;
-                else window.location = `/coaching/${getSubject()}/training/${response.data}/1`;
+                if (edit) window.location = `/ojtracker/coaching/${getSubject()}/training/${index}/2`;
+                else window.location = `/ojtracker/coaching/${getSubject()}/training/${response.data}/1`;
             } else {
                 alert("Unknown error");
                 setIsLoadingUpdate(false);
@@ -393,7 +393,7 @@ const Coaching = () => {
 
                 if (response.status === 200) {
                     response.data.trainings = response.data.trainings.map(item => {
-                        const link = `http://${window.location.host}/coaching/${id != 0 ? id : getSubject()}/training/${item.index}`;
+                        const link = `http://${window.location.host}/ojtracker/coaching/${id != 0 ? id : getSubject()}/training/${item.index}`;
 
                         let row = {
                             "Index": `#${item.index}`,
@@ -450,7 +450,7 @@ const Coaching = () => {
                 if (response.status === 200) {
                     if (isSpecial && canAct(response.data.coach)) {
                         setEdit(true);
-                        setTrainingLink(`${window.location.host}/coaching/${getSubject()}/training/${index}`);
+                        setTrainingLink(`${window.location.host}/ojtracker/coaching/${getSubject()}/training/${index}`);
 
                         for (let user of response.data.users) {
                             await addUser(user);
@@ -658,7 +658,7 @@ const Coaching = () => {
                 { !index ?
                 <>
                     { !isSpecial && !canAct(coachName) ? <h2>{ coachName }</h2> :
-                        <Button variant="contained" endIcon={<AddIcon />} onClick={() => window.location = "/coaching" }>
+                        <Button variant="contained" endIcon={<AddIcon />} onClick={() => window.location = "/ojtracker/coaching" }>
                             New Training
                         </Button>
                     }

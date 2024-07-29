@@ -36,7 +36,7 @@ const MyTable = (props) => {
           {props.rows.map((row) => (
             <TableRow
               onClick={() => {
-                if(props.redirect) window.location = `/curated-list/${row["id"]}`;
+                if(props.redirect) window.location = `/ojtracker/curated-list/${row["id"]}`;
                 if(props.newTab) {
                   window.umami.track(`user-${row["platform"]}-problem-link`);
                   window.open(row["link"], '_blank');

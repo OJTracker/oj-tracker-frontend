@@ -2,6 +2,7 @@
   "name": "oj-tracker-frontend",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/ojtracker",
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
@@ -18,7 +19,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.2.1",
     "chart.js": "^3.6.0",
-    "jwt-decode": "^3.1.2",
+    "jwt-decode": "^4.0.0",
     "react": "^17.0.1",
     "react-chartjs-2": "^3.0.4",
     "react-dom": "^17.0.1",

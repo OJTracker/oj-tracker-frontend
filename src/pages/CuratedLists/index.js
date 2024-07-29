@@ -77,7 +77,7 @@ const CuratedLists = () => {
             );
 
             if (response.status === 200) {
-                window.location = `/curated-list/${response.data}`;
+                window.location = `/ojtracker/curated-list/${response.data}`;
             } else {
                 alert("Unknown error");
                 setAddIsLoading(false);
